@@ -1,0 +1,70 @@
+name: drift-check
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # ежедневно 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+  actions: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Drift-check (отчёт)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node tools/drift-check.mjs --report
+
+      - name: Выгрузка отчёта артефактом
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report
+          path: drift-report.md
+          retention-days: 30
+
+      - name: Проверка новых тегов апстрима
+        id: tags
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          PINNED_TAG=$(node -p "JSON.parse(require('fs').readFileSync('upstream.json','utf8')).tag")
+          PINNED_COMMIT=$(node -p "JSON.parse(require('fs').readFileSync('upstream.json','utf8')).commit")
+          echo "pinned_tag=$PINNED_TAG" >> "$GITHUB_OUTPUT"
+          echo "pinned_commit=$PINNED_COMMIT" >> "$GITHUB_OUTPUT"
+          # Теги апстрима новее пина: список тегов, лежащих после пинned-коммита.
+          NEW_TAGS=$(gh api "repos/Fission-AI/OpenSpec/tags?per_page=100" --jq '.[].name' \
+            | awk -v pin="$PINNED_TAG" '$0 == pin {exit} {print}')
+          echo "new_tags<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$NEW_TAGS" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "Новые теги:"; echo "$NEW_TAGS"
+
+      - name: Создать/обновить issue о новом релизе
+        if: steps.tags.outputs.new_tags != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_TAGS: ${{ steps.tags.outputs.new_tags }}
+          PINNED_TAG: ${{ steps.tags.outputs.pinned_tag }}
+        run: |
+          set -euo pipefail
+          TITLE="Новый релиз апстрима: $(echo "$NEW_TAGS" | head -1)"
+          BODY="Вышли новые релизы апстрима Fission-AI/OpenSpec (текущая привязка: \`$PINNED_TAG\`):\n\n$NEW_TAGS\n\nПредлагается поднять привязку: обновить \`upstream.json\`, прогнать \`npm run drift:check\` и распланировать переперевод изменённых файлов."
+          EXISTING=$(gh issue list --search "in:title \"Новый релиз апстрима\"" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue edit "$EXISTING" --title "$TITLE" --body "$BODY"
+            echo "Обновлён issue #$EXISTING"
+          else
+            gh issue create --title "$TITLE" --body "$BODY" --label "upstream-drift" || gh issue create --title "$TITLE" --body "$BODY"
+            echo "Создан новый issue"
+          fi

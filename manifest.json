@@ -1,0 +1,569 @@
+{
+  "upstream": {
+    "repo": "Fission-AI/OpenSpec",
+    "tag": "v1.15.0",
+    "commit": "8e0288df12d401b0e183e2f47254d22528c1dffb"
+  },
+  "entries": [
+    {
+      "en": "docs-lab/customize/overview.md",
+      "ru": "ru/docs-lab/customize/overview.md",
+      "base_blob_sha": "203000ac136154c60c0a23e6b160106c1e7239cb",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/customize/profiles.md",
+      "ru": "ru/docs-lab/customize/profiles.md",
+      "base_blob_sha": "45406bbe7805f128bd5f7bdbc5c08f5e653a0349",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/customize/project-config.md",
+      "ru": "ru/docs-lab/customize/project-config.md",
+      "base_blob_sha": "2226ac035e92aff4cbcd33b5e62e418436fc3272",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/customize/schemas.md",
+      "ru": "ru/docs-lab/customize/schemas.md",
+      "base_blob_sha": "9bf70f706c12f4459fa11e7733fd37c0c5d64501",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/customize/skills.md",
+      "ru": "ru/docs-lab/customize/skills.md",
+      "base_blob_sha": "6a54510c970fdcb3a309be50ffb097ea8a26b424",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/guides/apply.md",
+      "ru": "ru/docs-lab/guides/apply.md",
+      "base_blob_sha": "dacb1027d183df7a238c1bfcc49bec7ada37e162",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/guides/change-course.md",
+      "ru": "ru/docs-lab/guides/change-course.md",
+      "base_blob_sha": "f12a8d87333be67e05988b744f7edbf1692daf65",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/guides/concepts.md",
+      "ru": "ru/docs-lab/guides/concepts.md",
+      "base_blob_sha": "f203e5da31506326921b37ca2c397e58cdb5498c",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/guides/examples.md",
+      "ru": "ru/docs-lab/guides/examples.md",
+      "base_blob_sha": "6e5745eb45d5465ecb85e149f52170e115f5c846",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/guides/existing-codebases.md",
+      "ru": "ru/docs-lab/guides/existing-codebases.md",
+      "base_blob_sha": "e589c553867c519e1fc33b10f8902b704932aa17",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/guides/explore.md",
+      "ru": "ru/docs-lab/guides/explore.md",
+      "base_blob_sha": "230d2c0b8d4fda2ca3e0eb080c9acb0f85e55a72",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/guides/review-the-plan.md",
+      "ru": "ru/docs-lab/guides/review-the-plan.md",
+      "base_blob_sha": "4623d9b55524493696b535e6c52de533a67e5267",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/guides/teams.md",
+      "ru": "ru/docs-lab/guides/teams.md",
+      "base_blob_sha": "1285ddfea36a4a3c586581e23082ecd0ce02c1b4",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/help/faq.md",
+      "ru": "ru/docs-lab/help/faq.md",
+      "base_blob_sha": "064e018c601ab383e1ac48960ea96b388d784a63",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/help/legacy/migration.md",
+      "ru": "ru/docs-lab/help/legacy/migration.md",
+      "base_blob_sha": "bd5fd99bb9f59233a7b69fa6223321d66aa2db59",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/help/troubleshooting.md",
+      "ru": "ru/docs-lab/help/troubleshooting.md",
+      "base_blob_sha": "d4962852f7fe993d081cea3b0c7cda5f0d0190ee",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/message-map.md",
+      "ru": "ru/docs-lab/message-map.md",
+      "base_blob_sha": "b7fb74f6ddd1e9fdbd915832a0f5049c81671861",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/multi-repo/stores.md",
+      "ru": "ru/docs-lab/multi-repo/stores.md",
+      "base_blob_sha": "0b596b91f9299f52f122b1253ff198052e2781aa",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/multi-repo/worksets.md",
+      "ru": "ru/docs-lab/multi-repo/worksets.md",
+      "base_blob_sha": "c0886f106ba41b1023ef5ec9000280553612c1e9",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/Notes.md",
+      "ru": "ru/docs-lab/Notes.md",
+      "base_blob_sha": "f4217fbf522ab0745fe007540c4d5ca129696f3d",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/README.md",
+      "ru": "ru/docs-lab/README.md",
+      "base_blob_sha": "86190e96aecc34d59dbe95b49cadf0f2a10ade57",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/architecture/design-decisions.md",
+      "ru": "ru/docs-lab/reference/architecture/design-decisions.md",
+      "base_blob_sha": "78bf92551eb95c20e6c7da0007e3ef1a1a6ed6ab",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/architecture/index.md",
+      "ru": "ru/docs-lab/reference/architecture/index.md",
+      "base_blob_sha": "e16604713922d06601e1e0864acc0e767cef118e",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/architecture/workflow-runs.md",
+      "ru": "ru/docs-lab/reference/architecture/workflow-runs.md",
+      "base_blob_sha": "6b29921cdbec3cbf2e6b1824c88b919e79074a6c",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/cli.md",
+      "ru": "ru/docs-lab/reference/cli.md",
+      "base_blob_sha": "982acf456de4b558d127a8871f8aad682a13b508",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/configuration/change-metadata.md",
+      "ru": "ru/docs-lab/reference/configuration/change-metadata.md",
+      "base_blob_sha": "d81025cae4da530014adc33e9dcac3103533c03f",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/configuration/config-json.md",
+      "ru": "ru/docs-lab/reference/configuration/config-json.md",
+      "base_blob_sha": "44284080918659daa68cfcec16bdf6eb1925144f",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/configuration/config-yaml.md",
+      "ru": "ru/docs-lab/reference/configuration/config-yaml.md",
+      "base_blob_sha": "9f6886c92c9a0b71c9dda1f5764ba6464efe4920",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/configuration/environment-variables.md",
+      "ru": "ru/docs-lab/reference/configuration/environment-variables.md",
+      "base_blob_sha": "dc1c608ef8778987566f6cc627c28d74359b288f",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/configuration/index.md",
+      "ru": "ru/docs-lab/reference/configuration/index.md",
+      "base_blob_sha": "e196b9b87a4daf5734b267a5a04752365a3c6855",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/configuration/stores.md",
+      "ru": "ru/docs-lab/reference/configuration/stores.md",
+      "base_blob_sha": "1d843f51f5e3c94a95c94efb33d27d4f909d694d",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/glossary.md",
+      "ru": "ru/docs-lab/reference/glossary.md",
+      "base_blob_sha": "a4c1c74be4859f7f5368cb37fc551df374bc098c",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/schemas/index.md",
+      "ru": "ru/docs-lab/reference/schemas/index.md",
+      "base_blob_sha": "7e93fd2bfee11ff7290fae3afe5e6dffedf3eed9",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/schemas/schema-yaml.md",
+      "ru": "ru/docs-lab/reference/schemas/schema-yaml.md",
+      "base_blob_sha": "6dc14fe266c068f9c42640304a1ec8bcac62e232",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/schemas/spec-driven/index.md",
+      "ru": "ru/docs-lab/reference/schemas/spec-driven/index.md",
+      "base_blob_sha": "5e9c1ea31630f9ca221eb68979569727de544b27",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/skills.md",
+      "ru": "ru/docs-lab/reference/skills.md",
+      "base_blob_sha": "29088deaa9752f4704b7a9e238d63ecd82797831",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/reference/supported-tools.md",
+      "ru": "ru/docs-lab/reference/supported-tools.md",
+      "base_blob_sha": "50595efba523b0af8bb0267b913f1959902d3a0c",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/sources.md",
+      "ru": "ru/docs-lab/sources.md",
+      "base_blob_sha": "f915a8ac86f4f8ee7308a47dc1c76f39a1529a6d",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/start/installation.md",
+      "ru": "ru/docs-lab/start/installation.md",
+      "base_blob_sha": "1e228cf82148de2ba638c775af8aed174401dbd4",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/start/overview.md",
+      "ru": "ru/docs-lab/start/overview.md",
+      "base_blob_sha": "9456031c1f772926454ba4d32077d50942a6ed83",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/start/quickstart.md",
+      "ru": "ru/docs-lab/start/quickstart.md",
+      "base_blob_sha": "90c4e28989c007460f663b5d5b6e7f739e1ef743",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "docs-lab/start/setup.md",
+      "ru": "ru/docs-lab/start/setup.md",
+      "base_blob_sha": "668e03790d79941ae1f333902330befd6d21978e",
+      "status": "pending",
+      "area": "docs-lab"
+    },
+    {
+      "en": "install.md",
+      "ru": "ru/meta/install.md",
+      "base_blob_sha": "51e73bacc46f922201bb39c0b980c3a55bda5d28",
+      "status": "pending",
+      "area": "meta"
+    },
+    {
+      "en": "README.md",
+      "ru": "ru/meta/README.md",
+      "base_blob_sha": "ce794e0949ca4d8bef0f60e017a99d2136d1f62e",
+      "status": "pending",
+      "area": "meta"
+    },
+    {
+      "en": "src/core/templates/index.ts",
+      "ru": "ru/src/core/templates/index.ts",
+      "base_blob_sha": "6bf5d712c49f72441e4913702ea5f93ba6ccc3f0",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/optional-workflow.ts",
+      "ru": "ru/src/core/templates/optional-workflow.ts",
+      "base_blob_sha": "d40bc66ddd4e006780af9add36e415874e881d69",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/skill-templates.ts",
+      "ru": "ru/src/core/templates/skill-templates.ts",
+      "base_blob_sha": "041c0331c728a9f6dc8d6dbcc892be45b96fcf68",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/types.ts",
+      "ru": "ru/src/core/templates/types.ts",
+      "base_blob_sha": "2c5ebb715cea0082e22cfd94e09f3764c24fad3c",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/apply-change.ts",
+      "ru": "ru/src/core/templates/workflows/apply-change.ts",
+      "base_blob_sha": "087911b0bd416983dd4d1c3eca94dac43bdeb777",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/archive-change.ts",
+      "ru": "ru/src/core/templates/workflows/archive-change.ts",
+      "base_blob_sha": "921cd14c6a5c1f7f47cc95bd2d1fb8de3eaa9922",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/bulk-archive-change.ts",
+      "ru": "ru/src/core/templates/workflows/bulk-archive-change.ts",
+      "base_blob_sha": "fae4f202023cabcdabff39600d479a9c59b6c823",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/continue-change.ts",
+      "ru": "ru/src/core/templates/workflows/continue-change.ts",
+      "base_blob_sha": "f6df7aac77fbdba213df1f20203dbba6b4887f44",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/explore.ts",
+      "ru": "ru/src/core/templates/workflows/explore.ts",
+      "base_blob_sha": "92fd1aee705cb629f930ec760bfcc3f11652a805",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/feedback.ts",
+      "ru": "ru/src/core/templates/workflows/feedback.ts",
+      "base_blob_sha": "baa984b731fc777281377439f8818f17bb30ece8",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/ff-change.ts",
+      "ru": "ru/src/core/templates/workflows/ff-change.ts",
+      "base_blob_sha": "a56ed042bbb74039028bf0bfa85e72ab615522ce",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/new-change.ts",
+      "ru": "ru/src/core/templates/workflows/new-change.ts",
+      "base_blob_sha": "fee477ea8a15223f09bb074da8a8e17c3974afdc",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/onboard.ts",
+      "ru": "ru/src/core/templates/workflows/onboard.ts",
+      "base_blob_sha": "851565a1741ea20297b058e42a0ca7ece3e65a20",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/project-root.ts",
+      "ru": "ru/src/core/templates/workflows/project-root.ts",
+      "base_blob_sha": "28158442109b799154d51b6084c1822db101b02c",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/propose.ts",
+      "ru": "ru/src/core/templates/workflows/propose.ts",
+      "base_blob_sha": "eb6810af1d81b02a981d7d12c25ab198e33ec623",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/store-selection.ts",
+      "ru": "ru/src/core/templates/workflows/store-selection.ts",
+      "base_blob_sha": "dfa132c3e5de3f6c85ca266f886bc4fa3e0fa6c5",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/sync-specs.ts",
+      "ru": "ru/src/core/templates/workflows/sync-specs.ts",
+      "base_blob_sha": "13a199323edf4fe726efb9126b5055f716eb131d",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/update-change.ts",
+      "ru": "ru/src/core/templates/workflows/update-change.ts",
+      "base_blob_sha": "43f1496678405aba698b387b5e69b6bb3cb03a2f",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "src/core/templates/workflows/verify-change.ts",
+      "ru": "ru/src/core/templates/workflows/verify-change.ts",
+      "base_blob_sha": "cc03e9a02853c6f6f506930b8772e290b0a6b91b",
+      "status": "pending",
+      "area": "templates"
+    },
+    {
+      "en": "website/app/api/search/route.ts",
+      "ru": "ru/website-strings/app/api/search/route.ts",
+      "base_blob_sha": "aaaff7ffd1d996fb277538555c815044c3746483",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/app/docs/[[...slug]]/page.tsx",
+      "ru": "ru/website-strings/app/docs/[[...slug]]/page.tsx",
+      "base_blob_sha": "a8be2bff8f406a9abbe372887b4150099e458b92",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/app/docs/layout.tsx",
+      "ru": "ru/website-strings/app/docs/layout.tsx",
+      "base_blob_sha": "056328f9a6d70440b0eb15e38ac01fc60acbadc1",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/app/layout.tsx",
+      "ru": "ru/website-strings/app/layout.tsx",
+      "base_blob_sha": "c8e5172f95610f329a0c90109704a95b48a8cb59",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/app/llms-full.txt/route.ts",
+      "ru": "ru/website-strings/app/llms-full.txt/route.ts",
+      "base_blob_sha": "d494d2cbb683c3937f1cd37f3cb27afd801924a0",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/app/llms.mdx/docs/[[...slug]]/route.ts",
+      "ru": "ru/website-strings/app/llms.mdx/docs/[[...slug]]/route.ts",
+      "base_blob_sha": "012e877cdae520b63d3ce085f07571e3ea59e57d",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/app/llms.txt/route.ts",
+      "ru": "ru/website-strings/app/llms.txt/route.ts",
+      "base_blob_sha": "6ec54757d94e51ddcd25420bc2d3e14bd76dbf3b",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/app/og/docs/[...slug]/route.tsx",
+      "ru": "ru/website-strings/app/og/docs/[...slug]/route.tsx",
+      "base_blob_sha": "877166d34f37d6402a5998acbafb13197f7e7a57",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/app/page.tsx",
+      "ru": "ru/website-strings/app/page.tsx",
+      "base_blob_sha": "8dd5f32fd9cbc356ace04847dc2c581ab8f2a7e6",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/app/robots.ts",
+      "ru": "ru/website-strings/app/robots.ts",
+      "base_blob_sha": "b0a31af94f640c49c914d525b84233420f288d93",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/app/sitemap.ts",
+      "ru": "ru/website-strings/app/sitemap.ts",
+      "base_blob_sha": "83a2dc9b2e2ba56be040c59b6c8e2ccd434fa34b",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/lib/layout.shared.tsx",
+      "ru": "ru/website-strings/lib/layout.shared.tsx",
+      "base_blob_sha": "e854e2887020a0ccdf4f4685da8a28a992015fb9",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/lib/remark-faq.ts",
+      "ru": "ru/website-strings/lib/remark-faq.ts",
+      "base_blob_sha": "1fcb5ff12bcb7f0d6d29e0192f7a45689d3dae5a",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/lib/remark-file-steps.ts",
+      "ru": "ru/website-strings/lib/remark-file-steps.ts",
+      "base_blob_sha": "248986c2bbe6909c3c29732d7bfdf0efce62d544",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/lib/remark-gfm-alert.ts",
+      "ru": "ru/website-strings/lib/remark-gfm-alert.ts",
+      "base_blob_sha": "0d6bfd1875472ebef51de22f73681800286c5434",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/lib/shared.ts",
+      "ru": "ru/website-strings/lib/shared.ts",
+      "base_blob_sha": "06eb54098c2b4a2f598da84aa5af10033147854a",
+      "status": "pending",
+      "area": "website"
+    },
+    {
+      "en": "website/lib/source.ts",
+      "ru": "ru/website-strings/lib/source.ts",
+      "base_blob_sha": "19591939c6dc341fbae5cb9d7437ec24187459de",
+      "status": "pending",
+      "area": "website"
+    }
+  ]
+}
