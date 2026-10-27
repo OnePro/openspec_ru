@@ -275,7 +275,7 @@
       "en": "docs-lab/start/installation.md",
       "ru": "ru/docs-lab/start/installation.md",
       "base_blob_sha": "1e228cf82148de2ba638c775af8aed174401dbd4",
-      "status": "pending",
+      "status": "machine",
       "area": "docs-lab"
     },
     {
@@ -310,7 +310,7 @@
       "en": "README.md",
       "ru": "ru/meta/README.md",
       "base_blob_sha": "ce794e0949ca4d8bef0f60e017a99d2136d1f62e",
-      "status": "pending",
+      "status": "machine",
       "area": "meta"
     },
     {
@@ -394,7 +394,7 @@
       "en": "src/core/templates/workflows/new-change.ts",
       "ru": "ru/src/core/templates/workflows/new-change.ts",
       "base_blob_sha": "fee477ea8a15223f09bb074da8a8e17c3974afdc",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {

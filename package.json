@@ -12,6 +12,10 @@
     "drift:check": "node tools/drift-check.mjs",
     "drift:diff": "node tools/drift-diff.mjs",
     "mark-translated": "node tools/mark-translated.mjs",
+    "translate": "node tools/translate.mjs",
+    "validate:ru": "node tools/validate-translation.mjs --all",
+    "lint:glossary": "node tools/validate-translation.mjs --lint ru",
+    "build:ru": "node tools/build-ru.mjs",
     "test": "node --test \"tools/**/*.test.mjs\""
   }
 }
