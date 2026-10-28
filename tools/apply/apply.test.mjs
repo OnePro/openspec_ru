@@ -28,9 +28,12 @@ const CLI_PATH = resolve(__dirname, 'cli.mjs');
 const DIR_PATH = resolve(__dirname);
 const CYRILLIC = /[А-Яа-яЁё]/;
 
-function withTempDir(fn) {
+function withTempDir(fn, { initGit = true } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'openspec-ru-apply-'));
   try {
+    if (initGit) {
+      mkdirSync(resolve(dir, '.git'), { recursive: true });
+    }
     return fn(dir);
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -117,6 +120,7 @@ test('4.1 unit: обновление блока между маркерами OP
     );
 
     const projectDir = resolve(dir, 'project');
+    mkdirSync(resolve(projectDir, '.git'), { recursive: true });
     const originalAgents = [
       '# Мой проект',
       'Пользовательский текст до маркера.',
@@ -385,4 +389,29 @@ test('4.3 E2E негативный 5: расхождение версии OpenSp
     });
     assert.match(res.report, /Предупреждение: версия установленного OpenSpec CLI \(v1\.14\.0\) отличается от версии бандла \(v1\.15\.0\)/);
   });
+});
+
+test('4.3 E2E негативный 6: если git не инициализирован в папке (.git отсутствует), выполнение заблокировано даже при наличии файлов OpenSpec', () => {
+  withTempDir(
+    (scratch) => {
+      const enSkill = '---\nname: openspec-explore\n---\nEnglish skill\n';
+      const skillAbs = writeFixtureFile(scratch, '.claude/skills/openspec-explore/SKILL.md', enSkill);
+      writeFixtureFile(scratch, 'openspec/config.yaml', 'schema: spec-driven\n');
+
+      const cliRes = invokeNodeCli(CLI_PATH, ['apply', scratch]);
+      assert.equal(cliRes.status, 1);
+      assert.match(cliRes.stderr, /не инициализирован Git/i);
+      assert.match(cliRes.stderr, /заблокирован/i);
+
+      // Ни один файл не изменён иopenspec/schemas не создан
+      assert.equal(readFileSync(skillAbs, 'utf8'), enSkill);
+      assert.equal(existsSync(resolve(scratch, 'openspec/schemas')), false);
+
+      // Команда init в папке без .git также заблокирована и не создаёт openspec/
+      const initRes = invokeNodeCli(CLI_PATH, ['init', '--tools', 'claude'], scratch);
+      assert.equal(initRes.status, 1);
+      assert.match(initRes.stderr, /openspec init.*заблокировано/i);
+    },
+    { initGit: false },
+  );
 });

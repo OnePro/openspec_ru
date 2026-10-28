@@ -318,6 +318,35 @@ export function applyRuPatch(projectDir, options = {}) {
     };
   }
 
+  if (!existsSync(resolve(targetDir, '.git'))) {
+    const msg =
+      'В каталоге не инициализирован Git (.git не найден). Инициализация и применение OpenSpec заблокированы — запускайте команду только в корне Git-репозитория («git init»).';
+    messages.push(msg);
+    return {
+      ok: false,
+      exitCode: 1,
+      projectDir: targetDir,
+      dryRun,
+      bundleVersion: bundleTag,
+      openspecVersion: expectedVersion,
+      installedOpenspecVersion: installedVersion,
+      versionMismatch,
+      detectedTools: [],
+      markers: { updated: [], unchanged: [] },
+      unsupportedTools: [],
+      totalUpdated: 0,
+      totalUnchanged: 0,
+      allUpToDate: false,
+      warnings,
+      messages,
+      report: [
+        `openspec-ru: бандл ${bundleTag} (OpenSpec ${expectedVersion})`,
+        ...warnings,
+        msg,
+      ].join('\n'),
+    };
+  }
+
   const detectedTools = [];
 
   for (const layout of TOOL_LAYOUTS) {

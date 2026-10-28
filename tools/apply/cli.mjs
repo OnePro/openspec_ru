@@ -5,9 +5,10 @@
 //   node tools/apply/cli.mjs apply [targetDir] [--dry-run]
 //   node tools/apply/ apply [targetDir] [--dry-run]
 
-import { realpathSync } from 'node:fs';
+import { existsSync, realpathSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { TOOL_IDS } from '../lib/tool-layouts.mjs';
 import { applyRuPatch, readBundleMeta } from './index.mjs';
 
@@ -18,11 +19,13 @@ export function formatHelp(meta) {
     '',
     'Использование:',
     '  openspec-ru apply [каталог-проекта] [опции]',
+    '  openspec-ru init [аргументы openspec init...]',
     '  npx github:OnePro/openspec_ru apply [каталог-проекта] [опции]',
     '',
     'Команды:',
     '  apply [каталог]   Перезаписать установленные OpenSpec skills и команды русскими версиями',
-    '                    (по умолчанию — текущий рабочий каталог)',
+    '                    (требует инициализированный Git и выполненный openspec init)',
+    '  init [...]        Выполнить openspec init (только если в папке инициализирован Git) и сразу накатить RU-патч',
     '',
     'Опции:',
     '  -n, --dry-run     Показать, какие файлы были бы обновлены, без записи на диск',
@@ -51,6 +54,33 @@ export function runCli(argv = process.argv.slice(2), io = { stdout: process.stdo
     const ver = meta?.openspecVersion ?? 'unknown';
     io.stdout.write(`openspec-ru (бандл ${tag}, OpenSpec ${ver})\n`);
     return 0;
+  }
+
+  if (argv[0] === 'init') {
+    const initArgs = argv.slice(1);
+    const nonFlagArgs = initArgs.filter((a, i) => !a.startsWith('-') && initArgs[i - 1] !== '--tools' && initArgs[i - 1] !== '--language' && initArgs[i - 1] !== '--profile');
+    const targetDir = nonFlagArgs[0] ? resolve(nonFlagArgs[0]) : process.cwd();
+    if (!existsSync(resolve(targetDir, '.git'))) {
+      io.stderr.write(
+        'В каталоге не инициализирован Git (.git не найден). Выполнение «openspec init» заблокировано — сначала выполните «git init» в корне проекта.\n',
+      );
+      return 1;
+    }
+    const initRes = spawnSync('openspec', ['init', ...initArgs], {
+      cwd: targetDir,
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+    });
+    if (initRes.status !== 0) {
+      return initRes.status ?? 1;
+    }
+    const patchRes = applyRuPatch(targetDir, { dryRun: false });
+    if (patchRes.ok) {
+      io.stdout.write(`${patchRes.report}\n`);
+    } else {
+      io.stderr.write(`${patchRes.report}\n`);
+    }
+    return patchRes.exitCode;
   }
 
   let dryRun = false;
