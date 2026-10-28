@@ -352,35 +352,35 @@
       "en": "src/core/templates/index.ts",
       "ru": "ru/src/core/templates/index.ts",
       "base_blob_sha": "6bf5d712c49f72441e4913702ea5f93ba6ccc3f0",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/optional-workflow.ts",
       "ru": "ru/src/core/templates/optional-workflow.ts",
       "base_blob_sha": "d40bc66ddd4e006780af9add36e415874e881d69",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/skill-templates.ts",
       "ru": "ru/src/core/templates/skill-templates.ts",
       "base_blob_sha": "041c0331c728a9f6dc8d6dbcc892be45b96fcf68",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/types.ts",
       "ru": "ru/src/core/templates/types.ts",
       "base_blob_sha": "2c5ebb715cea0082e22cfd94e09f3764c24fad3c",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/apply-change.ts",
       "ru": "ru/src/core/templates/workflows/apply-change.ts",
       "base_blob_sha": "087911b0bd416983dd4d1c3eca94dac43bdeb777",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
@@ -408,7 +408,7 @@
       "en": "src/core/templates/workflows/explore.ts",
       "ru": "ru/src/core/templates/workflows/explore.ts",
       "base_blob_sha": "92fd1aee705cb629f930ec760bfcc3f11652a805",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
@@ -443,21 +443,21 @@
       "en": "src/core/templates/workflows/project-root.ts",
       "ru": "ru/src/core/templates/workflows/project-root.ts",
       "base_blob_sha": "28158442109b799154d51b6084c1822db101b02c",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/propose.ts",
       "ru": "ru/src/core/templates/workflows/propose.ts",
       "base_blob_sha": "eb6810af1d81b02a981d7d12c25ab198e33ec623",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/store-selection.ts",
       "ru": "ru/src/core/templates/workflows/store-selection.ts",
       "base_blob_sha": "dfa132c3e5de3f6c85ca266f886bc4fa3e0fa6c5",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
