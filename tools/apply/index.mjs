@@ -3,7 +3,7 @@
 // идемпотентно заменяет skills и slash-команды топ-5 инструментов русскими
 // версиями из собранного бандла dist-ru/.
 
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -464,6 +464,57 @@ export function applyRuPatch(projectDir, options = {}) {
     detectedTools.reduce((acc, t) => acc + t.unchanged.length, 0) + markers.unchanged.length;
   const hasSupportedArtifacts = detectedTools.length > 0 || markers.updated.length + markers.unchanged.length > 0;
 
+  // 5. Русские схемы (openspec/schemas/spec-driven) и языковой контекст в openspec/config.yaml
+  const schemas = { updated: [], unchanged: [] };
+  let configUpdated = false;
+  let configUnchanged = false;
+  const openspecDirAbs = resolve(targetDir, 'openspec');
+  const bundleSchemasDir = resolve(bundleDir, 'schemas');
+
+  if (hasSupportedArtifacts && isDir(openspecDirAbs) && isDir(bundleSchemasDir)) {
+    function syncSchemaDir(relDir) {
+      const srcDir = resolve(bundleSchemasDir, relDir);
+      for (const entry of readdirSync(srcDir).sort()) {
+        const relSub = relDir ? posix.join(relDir, entry) : entry;
+        const srcAbs = resolve(bundleSchemasDir, relSub);
+        if (isDir(srcAbs)) {
+          syncSchemaDir(relSub);
+        } else if (isFile(srcAbs)) {
+          const destRel = posix.join('openspec/schemas', relSub);
+          const destAbs = resolve(targetDir, destRel);
+          const ruContent = readFileSync(srcAbs, 'utf8');
+          if (isFile(destAbs) && normalizeLf(readFileSync(destAbs, 'utf8')) === normalizeLf(ruContent)) {
+            schemas.unchanged.push(destRel);
+          } else {
+            if (!dryRun) {
+              mkdirSync(dirname(destAbs), { recursive: true });
+              writeFileSync(destAbs, normalizeLf(ruContent), 'utf8');
+            }
+            schemas.updated.push(destRel);
+          }
+        }
+      }
+    }
+    syncSchemaDir('');
+
+    const configRel = 'openspec/config.yaml';
+    const configAbs = resolve(targetDir, configRel);
+    if (isFile(configAbs)) {
+      const cfgContent = normalizeLf(readFileSync(configAbs, 'utf8'));
+      const langSnippet = 'context: |\n  Language: Russian\n  All artifacts must be written in Russian.\n';
+      if (/^context\s*:/m.test(cfgContent)) {
+        configUnchanged = true;
+      } else {
+        const updatedCfg = cfgContent.replace(/^(schema:\s*[^\n]+\n)/m, `$1\n${langSnippet}`);
+        const finalCfg = updatedCfg !== cfgContent ? updatedCfg : `${langSnippet}\n${cfgContent}`;
+        if (!dryRun) {
+          writeFileSync(configAbs, finalCfg, 'utf8');
+        }
+        configUpdated = true;
+      }
+    }
+  }
+
   if (!hasSupportedArtifacts && unsupportedTools.length === 0) {
     const noArtifactsMsg =
       'В проекте не обнаружено установленных артефактов OpenSpec. Сначала выполните «openspec init» в каталоге проекта.';
@@ -484,6 +535,8 @@ export function applyRuPatch(projectDir, options = {}) {
       versionMismatch,
       detectedTools,
       markers,
+      schemas,
+      configUpdated,
       unsupportedTools,
       totalUpdated: 0,
       totalUnchanged: 0,
@@ -494,7 +547,11 @@ export function applyRuPatch(projectDir, options = {}) {
     };
   }
 
-  const allUpToDate = hasSupportedArtifacts && totalUpdated === 0;
+  const allUpToDate =
+    hasSupportedArtifacts &&
+    totalUpdated === 0 &&
+    schemas.updated.length === 0 &&
+    !configUpdated;
   const reportLines = [
     `openspec-ru: бандл ${bundleTag} (OpenSpec ${expectedVersion})${dryRun ? ' [режим --dry-run, без записи на диск]' : ''}`,
     ...warnings,
@@ -508,6 +565,18 @@ export function applyRuPatch(projectDir, options = {}) {
         `  - ${tool.name} (${tool.id}): ${actionLabel} ${tool.updated.length} (skills: ${tool.skillsUpdated}, команды: ${tool.commandsUpdated}), уже актуально ${tool.unchanged.length}`,
       );
     }
+  }
+
+  if (schemas.updated.length > 0 || schemas.unchanged.length > 0) {
+    const actionLabel = dryRun ? 'будет обновлено' : 'обновлено';
+    const cfgStatus = configUpdated
+      ? `, config.yaml: ${actionLabel}`
+      : configUnchanged
+        ? ', config.yaml: уже настроен'
+        : '';
+    reportLines.push(
+      `  - Схемы OpenSpec (openspec/schemas): ${actionLabel} ${schemas.updated.length}, уже актуально ${schemas.unchanged.length}${cfgStatus}`,
+    );
   }
 
   if (markers.updated.length > 0 || markers.unchanged.length > 0) {

@@ -232,6 +232,16 @@ test('4.2 E2E: openspec init --tools claude (EN) -> apply -> RU -> повтор 
       assert.match(content, /\/opsx:/);
     }
     assert.equal(readFileSync(resolve(scratch, 'CLAUDE.md'), 'utf8'), claudeMdContent);
+    assert.match(
+      readFileSync(resolve(scratch, 'openspec/schemas/spec-driven/schema.yaml'), 'utf8'),
+      CYRILLIC,
+      'openspec/schemas/spec-driven/schema.yaml должен быть скопирован на русском',
+    );
+    assert.match(
+      readFileSync(resolve(scratch, 'openspec/config.yaml'), 'utf8'),
+      /Language:\s*Russian/,
+      'openspec/config.yaml должен получить Language: Russian',
+    );
 
     // 4. Повторный запуск -> 0 обновлённых, сообщение «уже актуальны»
     const repeatRes = invokeNodeCli(CLI_PATH, ['apply', scratch]);
