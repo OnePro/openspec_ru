@@ -10,6 +10,7 @@ import {
   linkTargets,
   validateJsonPair,
   validateMarkdownPair,
+  validateYamlPair,
   validatePair,
   validateTsPair,
 } from './validate-translation.mjs';
@@ -161,6 +162,99 @@ test('JSON: равные множества ключей проходят, пе�
   const ruBad = '{"version": 1, "steps": [{"id": "a", "zagolovok": "Т"}]}';
   const errors = validateJsonPair(en, ruBad);
   assert.ok(errors.some((e) => e.includes('zagolovok')), errors.join('; '));
+});
+
+// --- YAML -------------------------------------------------------------------
+
+const EN_YAML = [
+  'name: spec-driven',
+  'version: 1',
+  'description: Default OpenSpec workflow',
+  'artifacts:',
+  '  - id: proposal',
+  '    generates: proposal.md',
+  '    description: Initial proposal document',
+  '    template: proposal.md',
+  '    instruction: |',
+  '      Create the proposal document.',
+  '      Run `openspec list` first.',
+  '    requires: []',
+  '  - id: specs',
+  '    generates: "specs/**/*.md"',
+  '    description: Detailed specifications for the change',
+  '    template: spec.md',
+  '    requires:',
+  '      - proposal',
+  'apply:',
+  '  requires: [tasks]',
+  '  tracks: tasks.md',
+  '  instruction: |',
+  '    Read context files.',
+  '',
+].join('\n');
+
+function validRuYaml() {
+  return EN_YAML
+    .replace('description: Default OpenSpec workflow', 'description: Стандартный процесс OpenSpec')
+    .replace('description: Initial proposal document', 'description: Исходный документ предложения')
+    .replace('Create the proposal document.', 'Создайте документ предложения.')
+    .replace('Run `openspec list` first.', 'Сначала выполните `openspec list`.')
+    .replace('description: Detailed specifications for the change', 'description: Подробные спецификации изменения')
+    .replace('Read context files.', 'Прочитайте файлы контекста.');
+}
+
+test('YAML: валидная пара (переведены только текстовые значения) проходит', () => {
+  assert.deepEqual(validateYamlPair(EN_YAML, validRuYaml()), []);
+  assert.deepEqual(validatePair(EN_YAML, validRuYaml(), 'schemas/x/schema.yaml', { glossary }), []);
+});
+
+test('YAML: переименованный ключ ловится', () => {
+  const ru = validRuYaml().replace('    template: proposal.md', '    shablon: proposal.md');
+  const errors = validateYamlPair(EN_YAML, ru);
+  assert.ok(errors.some((e) => e.includes('ключи YAML') && e.includes('shablon')), errors.join('; '));
+  // Потерянный template первого артефакта ловится через белый список
+  // (в keyPaths он маскируется template второго артефакта — пути без индексов).
+  assert.ok(errors.some((e) => e.includes('идентификаторы YAML') && e.includes('template')), errors.join('; '));
+});
+
+test('YAML: переведённый id ловится', () => {
+  const ru = validRuYaml().replace('  - id: proposal', '  - id: predlozhenie');
+  const errors = validateYamlPair(EN_YAML, ru);
+  assert.ok(errors.some((e) => e.includes('идентификаторы YAML') && e.includes('predlozhenie')), errors.join('; '));
+  // И requires: [proposal] в EN ссылается на тот же id — связь разорвана.
+});
+
+test('YAML: переведённое имя схемы (name) ловится', () => {
+  const ru = validRuYaml().replace('name: spec-driven', 'name: po-specifikacii');
+  const errors = validateYamlPair(EN_YAML, ru);
+  assert.ok(errors.some((e) => e.includes('идентификаторы YAML') && e.includes('name=')), errors.join('; '));
+});
+
+test('YAML: переведённый путь шаблона ловится', () => {
+  const ru = validRuYaml().replace('generates: proposal.md', 'generates: predlozhenie.md');
+  const errors = validateYamlPair(EN_YAML, ru);
+  assert.ok(errors.some((e) => e.includes('идентификаторы YAML')), errors.join('; '));
+});
+
+test('YAML: потерянный артефакт ловится по длине массива и идентификаторам', () => {
+  const ru = validRuYaml().replace(/  - id: specs[\s\S]*?(?=apply:)/, '');
+  const errors = validateYamlPair(EN_YAML, ru);
+  assert.ok(errors.some((e) => e.includes('длины массивов YAML')), errors.join('; '));
+  assert.ok(errors.some((e) => e.includes('идентификаторы YAML') && e.includes('specs')), errors.join('; '));
+});
+
+test('YAML: глоссарий-линт идёт по текстовым значениям, ключи и id не линтуются', () => {
+  // «спека» в текстовом значении — нарушение.
+  const ruBad = validRuYaml().replace('Исходный документ предложения', 'Исходный документ спеки');
+  const errors = validatePair(EN_YAML, ruBad, 'schemas/x/schema.yaml', { glossary, ruPath: 'ru/schemas/x/schema.yaml' });
+  assert.ok(errors.some((e) => e.includes('запрещённый вариант')), errors.join('; '));
+  // А EN-идентификаторы (id: proposal, tracks: tasks.md) нарушений не дают:
+  assert.deepEqual(validatePair(EN_YAML, validRuYaml(), 'schemas/x/schema.yaml', { glossary }), []);
+});
+
+test('YAML: невалидный RU-YAML сообщается явно', () => {
+  const errors = validateYamlPair(EN_YAML, 'a: &anchor x\n');
+  assert.ok(errors.some((e) => e.includes('RU: невалидный YAML')), errors.join('; '));
 });
 
 // --- хелперы ----------------------------------------------------------------

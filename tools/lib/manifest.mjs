@@ -112,32 +112,84 @@ export function areaFor(enPath) {
   return 'meta';
 }
 
-/** Префиксы отслеживаемых зон (порядок не важен). */
-export const TRACKED_PREFIXES = [
-  'src/core/templates/',
-  'schemas/',
-  'docs-lab/',
-  'website/app/',
-  'website/lib/',
-];
-
 /** Корневые meta-файлы, включаемые в манифест. */
 export const META_FILES = ['README.md', 'install.md'];
 
-/** Расширения, которые имеет смысл переводить, по зонам. */
-const EXT_BY_AREA = {
-  templates: ['.ts'],
-  'docs-lab': ['.md'],
-  schemas: ['.json'],
-  website: ['.ts', '.tsx'],
-};
+/**
+ * Таблица зон с glob-паттернами переводческой поверхности (design D1).
+ * Поддерживаемый подмножественный синтаксис glob: `*` (внутри сегмента),
+ * `**` (любое число сегментов), `{a,b}` (альтернативы).
+ */
+export const ZONES = [
+  { area: 'templates', patterns: ['src/core/templates/**/*.ts'] },
+  { area: 'schemas', patterns: ['schemas/**/*.{yaml,yml,md}'] },
+  { area: 'docs-lab', patterns: ['docs-lab/**/*.md'] },
+  { area: 'website', patterns: ['website/{app,lib}/**/*.{ts,tsx}'] },
+];
+
+/** Компилирует glob-паттерн в RegExp (якоренный на весь путь). */
+export function globToRegExp(glob) {
+  let re = '';
+  let i = 0;
+  while (i < glob.length) {
+    const c = glob[i];
+    if (c === '*') {
+      if (glob[i + 1] === '*') {
+        if (glob[i + 2] === '/') {
+          re += '(?:[^/]+/)*';
+          i += 3;
+        } else {
+          re += '.*';
+          i += 2;
+        }
+      } else {
+        re += '[^/]*';
+        i += 1;
+      }
+    } else if (c === '{') {
+      const end = glob.indexOf('}', i);
+      if (end < 0) throw new Error(`glob: незакрытая '{' в паттерне ${glob}`);
+      const alts = glob.slice(i + 1, end).split(',').map((a) => a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      re += `(?:${alts.join('|')})`;
+      i = end + 1;
+    } else {
+      re += c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      i += 1;
+    }
+  }
+  return new RegExp(`^${re}$`);
+}
+
+const ZONE_REGEXES = ZONES.map((z) => ({
+  area: z.area,
+  regexes: z.patterns.map(globToRegExp),
+}));
 
 /** Входит ли путь дерева апстрима в переводческую поверхность. */
 export function isTracked(enPath) {
   if (META_FILES.includes(enPath)) return true;
-  const area = areaFor(enPath);
-  const exts = EXT_BY_AREA[area];
-  if (!exts) return false;
-  if (!exts.some((e) => enPath.endsWith(e))) return false;
-  return TRACKED_PREFIXES.some((p) => enPath.startsWith(p));
+  return ZONE_REGEXES.some((z) => z.regexes.some((re) => re.test(enPath)));
+}
+
+/**
+ * Идемпотентное слияние дерева апстрима с существующим манифестом (design D1):
+ * существующие записи не трогаются (статусы, base_blob_sha, latest_blob_sha
+ * сохраняются), добавляются только новые отслеживаемые EN-пути со статусом
+ * pending. Возвращает { entries, added } — entries отсортирован по en.
+ */
+export function mergeSeedEntries(existingEntries, tree) {
+  const known = new Set(existingEntries.map((e) => e.en));
+  const added = [];
+  for (const [path, sha] of [...tree.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    if (!isTracked(path) || known.has(path)) continue;
+    added.push({
+      en: path,
+      ru: ruPathFor(path),
+      base_blob_sha: sha,
+      status: 'pending',
+      area: areaFor(path),
+    });
+  }
+  const entries = [...existingEntries, ...added].sort((a, b) => a.en.localeCompare(b.en));
+  return { entries, added };
 }

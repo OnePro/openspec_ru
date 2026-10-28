@@ -314,6 +314,41 @@
       "area": "meta"
     },
     {
+      "en": "schemas/spec-driven/schema.yaml",
+      "ru": "ru/schemas/spec-driven/schema.yaml",
+      "base_blob_sha": "81336eb7fca90d7548465f3aeafe1d23af9b0d98",
+      "status": "machine",
+      "area": "schemas"
+    },
+    {
+      "en": "schemas/spec-driven/templates/design.md",
+      "ru": "ru/schemas/spec-driven/templates/design.md",
+      "base_blob_sha": "dc6ca739e9d336a9c187d7ee773e53da48666175",
+      "status": "machine",
+      "area": "schemas"
+    },
+    {
+      "en": "schemas/spec-driven/templates/proposal.md",
+      "ru": "ru/schemas/spec-driven/templates/proposal.md",
+      "base_blob_sha": "230036b69a5aac26a6f2984b504bbf6eec0e56c3",
+      "status": "machine",
+      "area": "schemas"
+    },
+    {
+      "en": "schemas/spec-driven/templates/spec.md",
+      "ru": "ru/schemas/spec-driven/templates/spec.md",
+      "base_blob_sha": "da7475067438111106673b1ceca347fcade42d3e",
+      "status": "machine",
+      "area": "schemas"
+    },
+    {
+      "en": "schemas/spec-driven/templates/tasks.md",
+      "ru": "ru/schemas/spec-driven/templates/tasks.md",
+      "base_blob_sha": "148874e6fb6261a61b37706a020a6c90847f204e",
+      "status": "machine",
+      "area": "schemas"
+    },
+    {
       "en": "src/core/templates/index.ts",
       "ru": "ru/src/core/templates/index.ts",
       "base_blob_sha": "6bf5d712c49f72441e4913702ea5f93ba6ccc3f0",

@@ -13,12 +13,15 @@ import { pathToFileURL } from 'node:url';
 import { ROOT, readManifest } from './lib/manifest.mjs';
 import { fetchBlob, readUpstream } from './lib/github.mjs';
 import { loadGlossary, lintGlossaryText } from './lib/glossary.mjs';
+import { parseYaml } from './lib/yaml.mjs';
 
 const TS_EXTS = new Set(['.ts', '.tsx', '.mts', '.cts']);
 const MD_EXTS = new Set(['.md', '.markdown']);
+const YAML_EXTS = new Set(['.yaml', '.yml']);
 
 export function isTs(path) { return TS_EXTS.has(extname(path)); }
 export function isMd(path) { return MD_EXTS.has(extname(path)); }
+export function isYaml(path) { return YAML_EXTS.has(extname(path)); }
 
 // ---------------------------------------------------------------------------
 // Markdown-зоны: fenced-код-блоки исключаются из структурных проверок.
@@ -223,6 +226,91 @@ function keyPaths(value, prefix = '') {
   return paths;
 }
 
+/**
+ * Ключи YAML, чьи значения — непереводимые идентификаторы (design D2):
+ * id и имена артефактов, пути шаблонов/генерируемых файлов, версия.
+ * Их значения обязаны совпасть с EN байт-в-байт.
+ */
+export const YAML_ID_KEYS = new Set([
+  'id',
+  'name',
+  'version',
+  'generates',
+  'template',
+  'tracks',
+  'requires',
+]);
+
+/** Пары «путь=значение» для значений-идентификаторов (белый список ключей). */
+function yamlIdValues(value, prefix = '', out = []) {
+  if (Array.isArray(value)) {
+    for (const item of value) yamlIdValues(item, `${prefix}[]`, out);
+  } else if (value !== null && typeof value === 'object') {
+    for (const [k, v] of Object.entries(value)) {
+      const p = prefix ? `${prefix}.${k}` : k;
+      if (YAML_ID_KEYS.has(k) && (v === null || typeof v !== 'object')) {
+        out.push(`${p}=${JSON.stringify(v)}`);
+      } else if (YAML_ID_KEYS.has(k) && Array.isArray(v)) {
+        for (const item of v) out.push(`${p}[]=${JSON.stringify(item)}`);
+      } else {
+        yamlIdValues(v, p, out);
+      }
+    }
+  }
+  return out;
+}
+
+/** Текстовые значения вне белого списка — кандидаты на перевод и глоссарий-линт. */
+export function yamlTextValues(value, out = []) {
+  if (Array.isArray(value)) {
+    for (const item of value) yamlTextValues(item, out);
+  } else if (value !== null && typeof value === 'object') {
+    for (const [k, v] of Object.entries(value)) {
+      if (!YAML_ID_KEYS.has(k)) yamlTextValues(v, out);
+    }
+  } else if (typeof value === 'string') {
+    out.push(value);
+  }
+  return out;
+}
+
+/** Длины массивов по путям — дополняет keyPaths, чей синтаксис `[]` без
+ * индексов не отличает массив из 2 элементов от массива из 1. */
+function yamlArrayLengths(value, prefix = '', out = []) {
+  if (Array.isArray(value)) {
+    out.push(`${prefix}[]=${value.length}`);
+    for (const item of value) yamlArrayLengths(item, `${prefix}[]`, out);
+  } else if (value !== null && typeof value === 'object') {
+    for (const [k, v] of Object.entries(value)) {
+      yamlArrayLengths(v, prefix ? `${prefix}.${k}` : k, out);
+    }
+  }
+  return out;
+}
+
+/**
+ * YAML: равенство множества путей ключей и длин массивов + неизменность
+ * значений-идентификаторов из белого списка (design D2).
+ * Текстовые значения линтуются в validatePair.
+ */
+export function validateYamlPair(en, ru) {
+  let enObj, ruObj;
+  try {
+    enObj = parseYaml(en);
+  } catch (e) {
+    return [`EN: невалидный YAML: ${e.message}`];
+  }
+  try {
+    ruObj = parseYaml(ru);
+  } catch (e) {
+    return [`RU: невалидный YAML: ${e.message}`];
+  }
+  const errors = diffSet('ключи YAML', keyPaths(enObj), keyPaths(ruObj));
+  errors.push(...diffSet('длины массивов YAML', yamlArrayLengths(enObj), yamlArrayLengths(ruObj)));
+  errors.push(...diffSet('идентификаторы YAML', yamlIdValues(enObj), yamlIdValues(ruObj)));
+  return errors;
+}
+
 export function validateJsonPair(en, ru) {
   let enObj, ruObj;
   try {
@@ -246,12 +334,28 @@ export function validatePair(en, ru, enPath, { glossary = null, ruPath = null } 
   const errors = [];
   if (isMd(enPath)) errors.push(...validateMarkdownPair(en, ru));
   else if (isTs(enPath)) errors.push(...validateTsPair(en, ru));
+  else if (isYaml(enPath)) errors.push(...validateYamlPair(en, ru));
   else if (extname(enPath) === '.json') errors.push(...validateJsonPair(en, ru));
   if (glossary) {
-    const violations = lintGlossaryText(ru, glossary, {
+    let lintText = ru;
+    let markdown = isMd(enPath);
+    let detectUntranslated = isMd(enPath);
+    if (isYaml(enPath)) {
+      // Для YAML линтуются только текстовые значения (ключи и значения-
+      // идентификаторы обязаны оставаться EN). detectUntranslated включён:
+      // текстовые значения — переведённая проза с markdown-разметкой.
+      try {
+        lintText = yamlTextValues(parseYaml(ru)).join('\n\n');
+        markdown = true;
+        detectUntranslated = true;
+      } catch {
+        lintText = ''; // ошибки парсинга уже зафиксированы validateYamlPair
+      }
+    }
+    const violations = lintGlossaryText(lintText, glossary, {
       file: ruPath ?? enPath,
-      markdown: isMd(enPath),
-      detectUntranslated: isMd(enPath),
+      markdown,
+      detectUntranslated,
     });
     errors.push(...violations.map((v) => v.message));
   }

@@ -86,7 +86,9 @@ test('areaFor определяет зону по пути', () => {
 test('isTracked фильтрует переводческую поверхность', () => {
   assert.ok(isTracked('src/core/templates/workflows/proposal.ts'));
   assert.ok(isTracked('docs-lab/index.md'));
-  assert.ok(isTracked('schemas/project.schema.json'));
+  assert.ok(isTracked('schemas/spec-driven/schema.yaml'));
+  assert.ok(isTracked('schemas/spec-driven/templates/design.md'));
+  assert.ok(!isTracked('schemas/project.schema.json')); // json вне зон D1
   assert.ok(isTracked('website/app/layout.tsx'));
   assert.ok(isTracked('website/lib/source.ts'));
   assert.ok(isTracked('README.md'));
@@ -96,4 +98,5 @@ test('isTracked фильтрует переводческую поверхнос
   assert.ok(!isTracked('website/scripts/sync-docs.mjs')); // вне app/ и lib/
   assert.ok(!isTracked('docs/old.md')); // старый docs/ не переводим
   assert.ok(!isTracked('CONTRIBUTING.md'));
+  assert.ok(!isTracked('schemas/spec-driven/schema.yaml.bak'));
 });
