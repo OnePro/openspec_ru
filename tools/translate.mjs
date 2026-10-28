@@ -46,7 +46,7 @@ export function llmConfigFromEnv(env = process.env) {
     key: env.TRANSLATE_API_KEY,
     model: env.TRANSLATE_API_MODEL,
     flavor,
-    maxTokens: Number(env.TRANSLATE_API_MAX_TOKENS ?? 16384),
+    maxTokens: Number(env.TRANSLATE_API_MAX_TOKENS ?? 32768),
   };
 }
 

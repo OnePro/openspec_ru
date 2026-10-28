@@ -387,21 +387,21 @@
       "en": "src/core/templates/workflows/archive-change.ts",
       "ru": "ru/src/core/templates/workflows/archive-change.ts",
       "base_blob_sha": "921cd14c6a5c1f7f47cc95bd2d1fb8de3eaa9922",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/bulk-archive-change.ts",
       "ru": "ru/src/core/templates/workflows/bulk-archive-change.ts",
       "base_blob_sha": "fae4f202023cabcdabff39600d479a9c59b6c823",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/continue-change.ts",
       "ru": "ru/src/core/templates/workflows/continue-change.ts",
       "base_blob_sha": "f6df7aac77fbdba213df1f20203dbba6b4887f44",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
@@ -415,14 +415,14 @@
       "en": "src/core/templates/workflows/feedback.ts",
       "ru": "ru/src/core/templates/workflows/feedback.ts",
       "base_blob_sha": "baa984b731fc777281377439f8818f17bb30ece8",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/ff-change.ts",
       "ru": "ru/src/core/templates/workflows/ff-change.ts",
       "base_blob_sha": "a56ed042bbb74039028bf0bfa85e72ab615522ce",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
@@ -436,7 +436,7 @@
       "en": "src/core/templates/workflows/onboard.ts",
       "ru": "ru/src/core/templates/workflows/onboard.ts",
       "base_blob_sha": "851565a1741ea20297b058e42a0ca7ece3e65a20",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
@@ -464,21 +464,21 @@
       "en": "src/core/templates/workflows/sync-specs.ts",
       "ru": "ru/src/core/templates/workflows/sync-specs.ts",
       "base_blob_sha": "13a199323edf4fe726efb9126b5055f716eb131d",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/update-change.ts",
       "ru": "ru/src/core/templates/workflows/update-change.ts",
       "base_blob_sha": "43f1496678405aba698b387b5e69b6bb3cb03a2f",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/verify-change.ts",
       "ru": "ru/src/core/templates/workflows/verify-change.ts",
       "base_blob_sha": "cc03e9a02853c6f6f506930b8772e290b0a6b91b",
-      "status": "pending",
+      "status": "machine",
       "area": "templates"
     },
     {
