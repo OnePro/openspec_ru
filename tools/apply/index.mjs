@@ -468,10 +468,11 @@ export function applyRuPatch(projectDir, options = {}) {
   const schemas = { updated: [], unchanged: [] };
   let configUpdated = false;
   let configUnchanged = false;
-  const openspecDirAbs = resolve(targetDir, 'openspec');
+  const configRel = 'openspec/config.yaml';
+  const configAbs = resolve(targetDir, configRel);
   const bundleSchemasDir = resolve(bundleDir, 'schemas');
 
-  if (hasSupportedArtifacts && isDir(openspecDirAbs) && isDir(bundleSchemasDir)) {
+  if (hasSupportedArtifacts && isFile(configAbs) && isDir(bundleSchemasDir)) {
     function syncSchemaDir(relDir) {
       const srcDir = resolve(bundleSchemasDir, relDir);
       for (const entry of readdirSync(srcDir).sort()) {
@@ -497,21 +498,17 @@ export function applyRuPatch(projectDir, options = {}) {
     }
     syncSchemaDir('');
 
-    const configRel = 'openspec/config.yaml';
-    const configAbs = resolve(targetDir, configRel);
-    if (isFile(configAbs)) {
-      const cfgContent = normalizeLf(readFileSync(configAbs, 'utf8'));
-      const langSnippet = 'context: |\n  Language: Russian\n  All artifacts must be written in Russian.\n';
-      if (/^context\s*:/m.test(cfgContent)) {
-        configUnchanged = true;
-      } else {
-        const updatedCfg = cfgContent.replace(/^(schema:\s*[^\n]+\n)/m, `$1\n${langSnippet}`);
-        const finalCfg = updatedCfg !== cfgContent ? updatedCfg : `${langSnippet}\n${cfgContent}`;
-        if (!dryRun) {
-          writeFileSync(configAbs, finalCfg, 'utf8');
-        }
-        configUpdated = true;
+    const cfgContent = normalizeLf(readFileSync(configAbs, 'utf8'));
+    const langSnippet = 'context: |\n  Language: Russian\n  All artifacts must be written in Russian.\n';
+    if (/^context\s*:/m.test(cfgContent)) {
+      configUnchanged = true;
+    } else {
+      const updatedCfg = cfgContent.replace(/^(schema:\s*[^\n]+\n)/m, `$1\n${langSnippet}`);
+      const finalCfg = updatedCfg !== cfgContent ? updatedCfg : `${langSnippet}\n${cfgContent}`;
+      if (!dryRun) {
+        writeFileSync(configAbs, finalCfg, 'utf8');
       }
+      configUpdated = true;
     }
   }
 
