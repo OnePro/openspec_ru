@@ -1,13 +1,16 @@
 {
   "name": "openspec-ru",
   "version": "0.1.0",
-  "private": true,
   "description": "Русскоязычный перевод OpenSpec (Fission-AI/OpenSpec) с трекингом дрейфа апстрима",
   "type": "module",
+  "bin": {
+    "openspec-ru": "./tools/apply/cli.mjs"
+  },
   "engines": {
     "node": ">=20"
   },
   "scripts": {
+    "apply:ru": "node tools/apply/cli.mjs apply",
     "manifest:seed": "node tools/seed-manifest.mjs",
     "drift:check": "node tools/drift-check.mjs",
     "drift:diff": "node tools/drift-diff.mjs",

@@ -1,0 +1,18 @@
+{
+  "name": "openspec-ru",
+  "version": "0.1.0",
+  "description": "Патчер русскоязычных AI-артефактов OpenSpec (skills и slash-команды для топ-5 инструментов)",
+  "type": "module",
+  "main": "./cli.mjs",
+  "bin": {
+    "openspec-ru": "./cli.mjs"
+  },
+  "exports": {
+    ".": "./index.mjs",
+    "./index.mjs": "./index.mjs",
+    "./cli.mjs": "./cli.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
