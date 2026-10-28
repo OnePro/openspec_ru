@@ -1,0 +1,83 @@
+{
+  "upstream": {
+    "repo": "Fission-AI/OpenSpec",
+    "tag": "v1.15.0",
+    "commit": "8e0288df12d401b0e183e2f47254d22528c1dffb"
+  },
+  "openspecVersion": "1.15.0",
+  "tools": [
+    {
+      "id": "claude",
+      "name": "Claude Code",
+      "skillsDir": ".claude/skills",
+      "commandsDir": ".claude/commands/opsx",
+      "commandPattern": ".claude/commands/opsx/<id>.md",
+      "commandExt": ".md",
+      "invocation": "/opsx:<id>"
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "skillsDir": ".cursor/skills",
+      "commandsDir": ".cursor/commands",
+      "commandPattern": ".cursor/commands/opsx-<id>.md",
+      "commandExt": ".md",
+      "invocation": "/opsx-<id>"
+    },
+    {
+      "id": "github-copilot",
+      "name": "GitHub Copilot",
+      "skillsDir": ".github/skills",
+      "commandsDir": ".github/prompts",
+      "commandPattern": ".github/prompts/opsx-<id>.prompt.md",
+      "commandExt": ".prompt.md",
+      "invocation": "/opsx-<id>"
+    },
+    {
+      "id": "codex",
+      "name": "Codex",
+      "skillsDir": ".agents/skills",
+      "commandsDir": null,
+      "commandPattern": null,
+      "commandExt": null,
+      "invocation": null
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini CLI",
+      "skillsDir": ".gemini/skills",
+      "commandsDir": ".gemini/commands/opsx",
+      "commandPattern": ".gemini/commands/opsx/<id>.toml",
+      "commandExt": ".toml",
+      "invocation": "/opsx:<id>"
+    }
+  ],
+  "skills": [
+    "openspec-explore",
+    "openspec-new-change",
+    "openspec-continue-change",
+    "openspec-apply-change",
+    "openspec-update-change",
+    "openspec-ff-change",
+    "openspec-sync-specs",
+    "openspec-archive-change",
+    "openspec-bulk-archive-change",
+    "openspec-verify-change",
+    "openspec-onboard",
+    "openspec-propose"
+  ],
+  "commands": [
+    "explore",
+    "new",
+    "continue",
+    "apply",
+    "update",
+    "ff",
+    "sync",
+    "archive",
+    "bulk-archive",
+    "verify",
+    "onboard",
+    "propose"
+  ]
+}

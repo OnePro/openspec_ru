@@ -14,9 +14,9 @@
 
 ## 3. Сборка RU-бандла
 
-- [ ] 3.1 Изучить `src/core/config.ts` и адаптеры command-generation апстрима; зафиксировать в коде таблицу раскладок топ-5 инструментов (Claude Code, Cursor, GitHub Copilot, Codex, Gemini CLI): skillsDir, commandsDir, паттерны имён
-- [ ] 3.2 Доработать `tools/build-ru.mjs`: после `pnpm build` пререндерить slash-команды топ-5 из RU-dist в `dist-ru/commands/<tool>/` (через экспорты адаптеров; fallback — прогон RU-собранного `openspec init` в scratch-проекте); проверить, что команды содержат русский текст и имена `/opsx:*`
-- [ ] 3.3 Полный прогон сборочного гейта: overlay всех переводов → `pnpm build` → `generate:skills` → команды; проверить, что сборка зелёная и `dist-ru/` полон (12 skills + команды × 5 инструментов)
+- [x] 3.1 Изучить `src/core/config.ts` и адаптеры command-generation апстрима; зафиксировать в коде таблицу раскладок топ-5 инструментов (Claude Code, Cursor, GitHub Copilot, Codex, Gemini CLI): skillsDir, commandsDir, паттерны имён
+- [x] 3.2 Доработать `tools/build-ru.mjs`: после `pnpm build` пререндерить slash-команды топ-5 из RU-dist в `dist-ru/commands/<tool>/` (через экспорты адаптеров; fallback — прогон RU-собранного `openspec init` в scratch-проекте); проверить, что команды содержат русский текст и имена `/opsx:*`
+- [x] 3.3 Полный прогон сборочного гейта: overlay всех переводов → `pnpm build` → `generate:skills` → команды; проверить, что сборка зелёная и `dist-ru/` полон (12 skills + команды × 5 инструментов)
 
 ## 4. Патчер openspec-ru
 
