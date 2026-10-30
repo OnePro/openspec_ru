@@ -24,6 +24,7 @@
 - [x] 4.2 E2E в scratch-проекте: `openspec init --tools claude` (EN) → `node tools/apply/ apply` → skills/команды русские, имена и маркеры нетронуты; повторный запуск → «актуально»; перезаписать EN и применить снова → русские (переприменение)
 - [x] 4.3 E2E негативные: проект без OpenSpec → понятное сообщение без создания файлов; каталог со сторонними skills → не затронуты; инструмент вне топ-5 → предупреждение без изменений
 - [x] 4.4 Обновить корневой `README.md`: инструкция пользователя (`openspec init` → `npx github:OnePro/openspec_ru apply` → переприменение после `openspec update`); проверить, что команды из README воспроизводимы
+- [x] 4.5 Реализовать команду `openspec-ru update [targetDir] [--dry-run] [--force]` в `tools/apply/cli.mjs` (проверка `.git` и `openspec/`, вызов `openspec update` при наличии CLI и применение `applyRuPatch`), покрыть тестом в `tools/apply/apply.test.mjs` и описать в `README.md` (`npx --yes github:OnePro/openspec_ru#main update`)
 
 ## Workflow follow-up
 

@@ -415,3 +415,44 @@ test('4.3 E2E негативный 6: если git не инициализиро
     { initGit: false },
   );
 });
+
+test('4.5 E2E: openspec-ru update блокирует без .git и без openspec/, а в проекте с OpenSpec выполняет openspec update и накатывает RU-бандл', () => {
+  // 1. Без .git -> код 1
+  withTempDir(
+    (noGitDir) => {
+      const r = invokeNodeCli(CLI_PATH, ['update', noGitDir]);
+      assert.equal(r.status, 1);
+      assert.match(r.stderr, /не инициализирован Git/i);
+    },
+    { initGit: false },
+  );
+
+  // 2. С .git, но без openspec/ -> код 1
+  withTempDir((noOsDir) => {
+    const r = invokeNodeCli(CLI_PATH, ['update', noOsDir]);
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /не найден каталог openspec/i);
+  });
+
+  // 3. Полноценный проект: openspec init -> openspec-ru update --force -> все файлы русские
+  withTempDir((scratch) => {
+    const initRes = spawnSync(
+      'openspec',
+      ['init', '--tools', 'claude', '--no-animation', '--no-copilot-cloud'],
+      { cwd: scratch, encoding: 'utf8', shell: process.platform === 'win32' },
+    );
+    assert.equal(initRes.status, 0);
+
+    const updRes = invokeNodeCli(CLI_PATH, ['update', scratch, '--force']);
+    assert.equal(updRes.status, 0, `stderr: ${updRes.stderr}`);
+    assert.match(updRes.stdout, /Claude Code \(claude\)/);
+    assert.match(
+      readFileSync(resolve(scratch, '.claude/skills/openspec-explore/SKILL.md'), 'utf8'),
+      CYRILLIC,
+    );
+    assert.match(
+      readFileSync(resolve(scratch, 'openspec/schemas/spec-driven/schema.yaml'), 'utf8'),
+      CYRILLIC,
+    );
+  });
+});

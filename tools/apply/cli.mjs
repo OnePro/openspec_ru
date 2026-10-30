@@ -12,7 +12,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { TOOL_IDS } from '../lib/tool-layouts.mjs';
-import { applyRuPatch, readBundleMeta } from './index.mjs';
+import { applyRuPatch, detectInstalledOpenspecVersion, readBundleMeta } from './index.mjs';
 import { startWebServer, stopWebServer } from '../web/server.mjs';
 
 const WEB_COMMANDS = new Set(['start', 'stop', 'ui']);
@@ -23,14 +23,16 @@ export function formatHelp(meta) {
     `openspec-ru — патчер русскоязычных AI-артефактов OpenSpec (бандл ${tag})`,
     '',
     'Использование:',
-    '  openspec-ru apply [каталог-проекта] [опции]',
     '  openspec-ru init [аргументы openspec init...]',
-    '  npx github:OnePro/openspec_ru apply [каталог-проекта] [опции]',
+    '  openspec-ru update [каталог-проекта] [опции]',
+    '  openspec-ru apply [каталог-проекта] [опции]',
+    '  npx --yes github:OnePro/openspec_ru#main update',
     '',
     'Команды:',
+    '  init [...]        Выполнить openspec init (только если в папке инициализирован Git) и сразу накатить RU-патч',
+    '  update [каталог]  Выполнить штатный openspec update и поверх применить свежий RU-бандл',
     '  apply [каталог]   Перезаписать установленные OpenSpec skills и команды русскими версиями',
     '                    (требует инициализированный Git и выполненный openspec init)',
-    '  init [...]        Выполнить openspec init (только если в папке инициализирован Git) и сразу накатить RU-патч',
     '  start web [каталог] [--port 3000] [--no-open]',
     '                    Запустить веб-панель изменений и спецификаций (алиас: ui)',
     '  stop web [каталог]',
@@ -38,6 +40,7 @@ export function formatHelp(meta) {
     '',
     'Опции:',
     '  -n, --dry-run     Показать, какие файлы были бы обновлены, без записи на диск',
+    '  -f, --force       Передать --force в штатный openspec update (для команды update)',
     '  --port <порт>     Порт веб-панели (по умолчанию 3000, при занятости — до 3015)',
     '  --no-open         Не открывать браузер при запуске веб-панели',
     '  --stop            Остановить веб-панель (для команды ui)',
@@ -165,6 +168,56 @@ export function runCli(argv = process.argv.slice(2), io = { stdout: process.stdo
       return initRes.status ?? 1;
     }
     const patchRes = applyRuPatch(targetDir, { dryRun: false });
+    if (patchRes.ok) {
+      io.stdout.write(`${patchRes.report}\n`);
+    } else {
+      io.stderr.write(`${patchRes.report}\n`);
+    }
+    return patchRes.exitCode;
+  }
+
+  if (argv[0] === 'update') {
+    let dryRun = false;
+    let force = false;
+    const positionals = [];
+    for (const arg of argv.slice(1)) {
+      if (arg === '--dry-run' || arg === '-n') {
+        dryRun = true;
+      } else if (arg === '--force' || arg === '-f') {
+        force = true;
+      } else if (arg.startsWith('-')) {
+        io.stderr.write(`Неизвестный флаг: ${arg}\n\n${formatHelp(meta)}\n`);
+        return 1;
+      } else {
+        positionals.push(arg);
+      }
+    }
+    const targetDir = positionals[0] ? resolve(positionals[0]) : process.cwd();
+    if (!existsSync(resolve(targetDir, '.git'))) {
+      io.stderr.write(
+        'В каталоге не инициализирован Git (.git не найден). Обновление заблокировано — запускайте команду только в корне Git-репозитория.\n',
+      );
+      return 1;
+    }
+    if (!existsSync(resolve(targetDir, 'openspec'))) {
+      io.stderr.write(
+        'В проекте не найден каталог openspec/. Сначала выполните «npx github:OnePro/openspec_ru init».\n',
+      );
+      return 1;
+    }
+    if (!dryRun && detectInstalledOpenspecVersion()) {
+      const updateArgs = ['update'];
+      if (force) updateArgs.push('--force');
+      const updateRes = spawnSync('openspec', updateArgs, {
+        cwd: targetDir,
+        stdio: 'inherit',
+        shell: process.platform === 'win32',
+      });
+      if (updateRes.status !== 0) {
+        return updateRes.status ?? 1;
+      }
+    }
+    const patchRes = applyRuPatch(targetDir, { dryRun });
     if (patchRes.ok) {
       io.stdout.write(`${patchRes.report}\n`);
     } else {
