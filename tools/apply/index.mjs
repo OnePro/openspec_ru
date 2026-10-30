@@ -20,6 +20,7 @@ import { UI_COMMAND_ID, UI_SKILL_DIR } from '../web/ui-skill-template.mjs';
 const APPLY_DIR = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = resolve(APPLY_DIR, '../..');
 export const DEFAULT_BUNDLE_DIR = resolve(REPO_ROOT, 'dist-ru');
+export const GITHUB_REPO_URL = 'https://github.com/OnePro/openspec_ru.git';
 
 export const TOP5_TOOLS = TOOL_LAYOUTS;
 export const OPENSPEC_MARKERS = Object.freeze({
@@ -183,7 +184,47 @@ export function detectInstalledOpenspecVersion() {
 }
 
 /**
- * Устанавливает глобальный рантайм в `~/.openspec-ru/runtime/` и создаёт шорткат `openspec-ru`
+ * Подтягивает свежий коммит `OnePro/openspec_ru` с GitHub прямо в `~/.openspec-ru/runtime/`,
+ * чтобы команда `update` никогда не зависела от закэшированной папки `_npx`.
+ */
+export function pullLatestRuntimeFromGithub(options = {}) {
+  const homeDir = options.homeDir ?? os.homedir();
+  const repoUrl = options.repoUrl ?? GITHUB_REPO_URL;
+  const runtimeDir = resolve(homeDir, '.openspec-ru', 'runtime');
+
+  try {
+    mkdirSync(dirname(runtimeDir), { recursive: true });
+    if (isDir(resolve(runtimeDir, '.git'))) {
+      const fetchRes = spawnSync('git', ['-C', runtimeDir, 'fetch', '--depth', '1', 'origin', 'main'], {
+        encoding: 'utf8',
+        timeout: 20000,
+      });
+      if (fetchRes.status === 0) {
+        spawnSync('git', ['-C', runtimeDir, 'reset', '--hard', 'origin/main'], {
+          encoding: 'utf8',
+          timeout: 10000,
+        });
+        return { updated: true, runtimeDir, bundleDir: resolve(runtimeDir, 'dist-ru') };
+      }
+    }
+
+    // Если в runtime ещё нет git-клона — клонируем с GitHub во временную папку и заменяем
+    const tmpClone = resolve(homeDir, '.openspec-ru', `runtime-tmp-${Date.now()}`);
+    const cloneRes = spawnSync('git', ['clone', '--depth', '1', repoUrl, tmpClone], {
+      encoding: 'utf8',
+      timeout: 30000,
+    });
+    if (cloneRes.status === 0 && isDir(resolve(tmpClone, 'dist-ru'))) {
+      cpSync(tmpClone, runtimeDir, { recursive: true, force: true });
+      spawnSync(process.platform === 'win32' ? 'cmd.exe' : 'rm', process.platform === 'win32' ? ['/d', '/s', '/c', `rmdir /s /q "${tmpClone}"`] : ['-rf', tmpClone]);
+      return { updated: true, runtimeDir, bundleDir: resolve(runtimeDir, 'dist-ru') };
+    }
+  } catch {
+    // При отсутствии сети продолжаем с локальным бандлом
+  }
+
+  return { updated: false, runtimeDir, bundleDir: null };
+}
  * в доступной на запись директории из PATH (на Windows, macOS и Linux), чтобы после
  * первого запуска через `npx` команда `openspec-ru start web` работала напрямую.
  */

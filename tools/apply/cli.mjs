@@ -16,6 +16,7 @@ import {
   applyRuPatch,
   detectInstalledOpenspecVersion,
   installGlobalCliShim,
+  pullLatestRuntimeFromGithub,
   readBundleMeta,
   spawnOpenspec,
 } from './index.mjs';
@@ -238,9 +239,18 @@ export function runCli(argv = process.argv.slice(2), io = { stdout: process.stdo
         return updateRes.status ?? 1;
       }
     }
-    const patchRes = applyRuPatch(targetDir, { dryRun });
+    let bundleDir;
+    let sourceRoot;
+    if (!dryRun && process.env.OPENSPEC_RU_OFFLINE !== '1') {
+      const pulled = pullLatestRuntimeFromGithub();
+      if (pulled.updated && pulled.bundleDir) {
+        bundleDir = pulled.bundleDir;
+        sourceRoot = pulled.runtimeDir;
+      }
+    }
+    const patchRes = applyRuPatch(targetDir, { dryRun, ...(bundleDir ? { bundleDir } : {}) });
     if (patchRes.ok) {
-      if (!dryRun) installGlobalCliShim();
+      if (!dryRun) installGlobalCliShim(sourceRoot ? { sourceRoot } : {});
       io.stdout.write(`${patchRes.report}\n`);
     } else {
       io.stderr.write(`${patchRes.report}\n`);

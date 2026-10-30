@@ -59,6 +59,7 @@ function invokeNodeCli(entryPath, args, cwd = REPO_ROOT) {
   return spawnSync(process.execPath, [entryPath, ...args], {
     cwd,
     encoding: 'utf8',
+    env: { ...process.env, OPENSPEC_RU_OFFLINE: '1' },
   });
 }
 
