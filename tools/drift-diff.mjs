@@ -55,10 +55,14 @@ try {
   let diff;
   try {
     // Пустые префиксы: пути a/<файл> и b/<файл> попадают в заголовки как есть.
-    diff = execFileSync('git', ['diff', '--no-index', '--src-prefix=', '--dst-prefix=', '--', 'a', 'b'], {
-      encoding: 'utf8',
-      cwd: dir,
-    });
+    diff = execFileSync(
+      'git',
+      ['-c', 'core.autocrlf=false', '-c', 'core.safecrlf=false', 'diff', '--no-index', '--src-prefix=', '--dst-prefix=', '--', 'a', 'b'],
+      {
+        encoding: 'utf8',
+        cwd: dir,
+      },
+    );
   } catch (err) {
     // git diff --no-index возвращает код 1 при наличии различий — это норма.
     if (err.status === 1 && typeof err.stdout === 'string') {

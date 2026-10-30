@@ -23,7 +23,7 @@ const SEPARATOR_RE = /^\|[\s:-]+\|[\s:-]+\|[\s:-]+\|$/;
  * Бросает Error на строке таблицы с неизвестным правилом или пустыми ячейками.
  */
 export function parseGlossary(text) {
-  const lines = text.split('\n');
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
   const entries = [];
   let inTable = false;
   for (let i = 0; i < lines.length; i++) {

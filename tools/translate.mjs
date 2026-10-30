@@ -274,10 +274,11 @@ export function makeUnifiedDiff(enPath, oldContent, newContent) {
     writeFileSync(join(dir, 'a', base), oldContent, 'utf8');
     writeFileSync(join(dir, 'b', base), newContent, 'utf8');
     try {
-      return execFileSync('git', ['diff', '--no-index', '--src-prefix=', '--dst-prefix=', '--', 'a', 'b'], {
-        encoding: 'utf8',
-        cwd: dir,
-      });
+      return execFileSync(
+        'git',
+        ['-c', 'core.autocrlf=false', '-c', 'core.safecrlf=false', 'diff', '--no-index', '--src-prefix=', '--dst-prefix=', '--', 'a', 'b'],
+        { encoding: 'utf8', cwd: dir },
+      );
     } catch (err) {
       if (err.status === 1 && typeof err.stdout === 'string') return err.stdout;
       throw err;

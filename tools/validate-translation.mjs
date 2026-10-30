@@ -29,7 +29,7 @@ export function isYaml(path) { return YAML_EXTS.has(extname(path)); }
 
 /** Разбивает markdown на «вне кода» и число код-блоков. */
 export function codeZones(md) {
-  const lines = md.split('\n');
+  const lines = md.replace(/\r\n/g, '\n').split('\n');
   const outside = [];
   let inFence = false;
   let blocks = 0;

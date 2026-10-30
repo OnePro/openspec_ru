@@ -212,25 +212,37 @@ export function pullLatestRuntimeFromGithub(options = {}) {
   try {
     mkdirSync(dirname(runtimeDir), { recursive: true });
     if (isDir(resolve(runtimeDir, '.git'))) {
-      const fetchRes = spawnSync('git', ['-C', runtimeDir, 'fetch', '--depth', '1', 'origin', 'main'], {
-        encoding: 'utf8',
-        timeout: 20000,
-      });
-      if (fetchRes.status === 0) {
-        spawnSync('git', ['-C', runtimeDir, 'reset', '--hard', 'origin/main'], {
+      const fetchRes = spawnSync(
+        'git',
+        ['-c', 'core.autocrlf=false', '-C', runtimeDir, 'fetch', '--depth', '1', 'origin', 'main'],
+        {
           encoding: 'utf8',
-          timeout: 10000,
-        });
+          timeout: 20000,
+        },
+      );
+      if (fetchRes.status === 0) {
+        spawnSync(
+          'git',
+          ['-c', 'core.autocrlf=false', '-C', runtimeDir, 'reset', '--hard', 'origin/main'],
+          {
+            encoding: 'utf8',
+            timeout: 10000,
+          },
+        );
         return { updated: true, runtimeDir, bundleDir: resolve(runtimeDir, 'dist-ru') };
       }
     }
 
     // Если в runtime ещё нет git-клона — клонируем с GitHub во временную папку и заменяем
     const tmpClone = resolve(homeDir, '.openspec-ru', `runtime-tmp-${Date.now()}`);
-    const cloneRes = spawnSync('git', ['clone', '--depth', '1', repoUrl, tmpClone], {
-      encoding: 'utf8',
-      timeout: 30000,
-    });
+    const cloneRes = spawnSync(
+      'git',
+      ['-c', 'core.autocrlf=false', 'clone', '--depth', '1', repoUrl, tmpClone],
+      {
+        encoding: 'utf8',
+        timeout: 30000,
+      },
+    );
     if (cloneRes.status === 0 && isDir(resolve(tmpClone, 'dist-ru'))) {
       cpSync(tmpClone, runtimeDir, { recursive: true, force: true });
       spawnSync(process.platform === 'win32' ? 'cmd.exe' : 'rm', process.platform === 'win32' ? ['/d', '/s', '/c', `rmdir /s /q "${tmpClone}"`] : ['-rf', tmpClone]);
