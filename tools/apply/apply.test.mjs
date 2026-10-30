@@ -328,13 +328,17 @@ test('4.3 E2E негативный 2: сторонние skills и команд�
   });
 });
 
-test('4.3 E2E негативный 3: инструмент вне топ-5 (cline и произвольный .FakeTool) -> предупреждение, файлы не изменены', () => {
+test('4.3 E2E негативный 3: все 44 официальных инструмента (включая cline, pi, amazon-q, kimi) поддерживаются, а произвольный .FakeTool выдаёт предупреждение и не изменяется', () => {
   withTempDir((scratch) => {
     const clineSkillText = '---\nname: openspec-explore\n---\nCline EN skill\n';
+    const piSkillText = '---\nname: openspec-explore\n---\nPi EN skill\n';
+    const kimiSkillText = '---\nname: openspec-explore\n---\nKimi EN skill\n';
     const clineWorkflowText = '# OPSX: Explore\nCline EN workflow\n';
     const fakeSkillText = '---\nname: openspec-explore\n---\nFakeTool EN skill\n';
 
     const clineSkillAbs = writeFixtureFile(scratch, '.cline/skills/openspec-explore/SKILL.md', clineSkillText);
+    const piSkillAbs = writeFixtureFile(scratch, '.pi/skills/openspec-explore/SKILL.md', piSkillText);
+    const kimiSkillAbs = writeFixtureFile(scratch, '.kimi-code/skills/openspec-explore/SKILL.md', kimiSkillText);
     const clineWfAbs = writeFixtureFile(scratch, '.clinerules/workflows/opsx-explore.md', clineWorkflowText);
     const fakeSkillAbs = writeFixtureFile(scratch, '.FakeTool/skills/openspec-explore/SKILL.md', fakeSkillText);
 
@@ -343,12 +347,17 @@ test('4.3 E2E негативный 3: инструмент вне топ-5 (clin
 
     const cliRes = invokeNodeCli(CLI_PATH, ['apply', scratch]);
     assert.equal(cliRes.status, 0);
-    assert.match(cliRes.stdout, /Предупреждение: инструмент «Cline»/);
+    assert.match(cliRes.stdout, /Cline \(cline\): обновлено 1/);
+    assert.match(cliRes.stdout, /Pi \(pi\): обновлено 1/);
+    assert.match(cliRes.stdout, /Kimi Code \(kimi\): обновлено 1/);
     assert.match(cliRes.stdout, /Предупреждение: инструмент «\.FakeTool»/);
-    assert.match(cliRes.stdout, /не изменены/);
 
-    // Файлы неподдерживаемых инструментов остались байт-в-байт нетронутыми
-    assert.equal(readFileSync(clineSkillAbs, 'utf8'), clineSkillText);
+    // Skills всех поддерживаемых инструментов переведены на русский
+    assert.match(readFileSync(clineSkillAbs, 'utf8'), CYRILLIC);
+    assert.match(readFileSync(piSkillAbs, 'utf8'), CYRILLIC);
+    assert.match(readFileSync(kimiSkillAbs, 'utf8'), /\/skill:openspec-propose/);
+
+    // Файлы неподдерживаемых директорий (.FakeTool и .clinerules/workflows) остались нетронутыми
     assert.equal(readFileSync(clineWfAbs, 'utf8'), clineWorkflowText);
     assert.equal(readFileSync(fakeSkillAbs, 'utf8'), fakeSkillText);
   });

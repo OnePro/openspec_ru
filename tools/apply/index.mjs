@@ -9,6 +9,7 @@ import { delimiter, dirname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import {
+  ALL_TOOL_LAYOUTS,
   SKILL_FILE,
   TOOL_IDS,
   TOOL_LAYOUTS,
@@ -28,10 +29,26 @@ export const OPENSPEC_MARKERS = Object.freeze({
   end: '<!-- OPENSPEC:END -->',
 });
 
-const TOP5_SKILLS_DIRS = new Set(TOOL_LAYOUTS.map((t) => t.skillsDir));
+const TOP5_SKILLS_DIRS = new Set(ALL_TOOL_LAYOUTS.map((t) => t.skillsDir));
 const TOP5_COMMANDS_DIRS = new Set(
-  TOOL_LAYOUTS.map((t) => t.commandsDir).filter(Boolean),
+  ALL_TOOL_LAYOUTS.map((t) => t.commandsDir).filter(Boolean),
 );
+
+function formatFallbackSkillContent(rawContent, layout, expectedVersion) {
+  let content = normalizeLf(rawContent);
+  if (expectedVersion && !/^  generatedBy:/m.test(content)) {
+    content = content.replace(
+      /^(metadata:\n(?:  [^\n]+\n)*?)(---)/m,
+      `$1  generatedBy: "${expectedVersion}"\n$2`,
+    );
+  }
+  if (layout.skillRefStyle === 'kimi') {
+    content = content.replace(/(?<![A-Za-z0-9_:])\/(openspec-[a-z-]+)/g, '/skill:$1');
+  } else if (layout.skillRefStyle === 'natural') {
+    content = content.replace(/(?<![A-Za-z0-9_:])\/(openspec-[a-z-]+)/g, 'the $1 skill');
+  }
+  return content;
+}
 
 /**
  * Известные каталоги инструментов вне топ-5 (из src/core/config.ts и адаптеров апстрима).
@@ -525,7 +542,7 @@ export function applyRuPatch(projectDir, options = {}) {
 
   const detectedTools = [];
 
-  for (const layout of TOOL_LAYOUTS) {
+  for (const layout of ALL_TOOL_LAYOUTS) {
     const updated = [];
     const unchanged = [];
     let skillsUpdated = 0;
@@ -545,15 +562,19 @@ export function applyRuPatch(projectDir, options = {}) {
 
         const ruToolSkill = resolve(bundleDir, 'tool-skills', layout.id, relPath);
         const ruFallbackSkill = resolve(bundleDir, 'skills', dirName, SKILL_FILE);
-        const ruFile = isFile(ruToolSkill)
-          ? ruToolSkill
-          : isFile(ruFallbackSkill)
-            ? ruFallbackSkill
-            : null;
-        if (!ruFile) continue;
+        let ruContent = null;
+        if (isFile(ruToolSkill)) {
+          ruContent = readFileSync(ruToolSkill, 'utf8');
+        } else if (isFile(ruFallbackSkill)) {
+          ruContent = formatFallbackSkillContent(
+            readFileSync(ruFallbackSkill, 'utf8'),
+            layout,
+            expectedVersion,
+          );
+        }
+        if (ruContent === null) continue;
 
         const currentContent = readFileSync(targetFile, 'utf8');
-        const ruContent = readFileSync(ruFile, 'utf8');
         if (normalizeLf(currentContent) === normalizeLf(ruContent)) {
           unchanged.push(relPath);
           skillsUnchanged++;
@@ -737,10 +758,13 @@ export function applyRuPatch(projectDir, options = {}) {
     };
 
     for (const detected of detectedTools) {
-      const layout = TOOL_LAYOUTS.find((t) => t.id === detected.id);
+      const layout = ALL_TOOL_LAYOUTS.find((t) => t.id === detected.id);
+      if (!layout) continue;
       const uiSkillRel = skillPath(layout.id, UI_SKILL_DIR);
       if (isDir(resolve(targetDir, layout.skillsDir))) {
-        syncBonusFile(uiSkillRel, resolve(bundleDir, 'tool-skills', layout.id, uiSkillRel));
+        const toolSkillSrc = resolve(bundleDir, 'tool-skills', layout.id, uiSkillRel);
+        const fallbackSkillSrc = resolve(bundleDir, 'skills', UI_SKILL_DIR, SKILL_FILE);
+        syncBonusFile(uiSkillRel, isFile(toolSkillSrc) ? toolSkillSrc : fallbackSkillSrc);
       }
       if (layout.commandPattern && isDir(resolve(targetDir, layout.commandsDir))) {
         const uiCmdRel = commandPath(layout.id, UI_COMMAND_ID);
