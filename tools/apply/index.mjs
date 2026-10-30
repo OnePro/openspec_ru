@@ -225,6 +225,9 @@ export function pullLatestRuntimeFromGithub(options = {}) {
 
   return { updated: false, runtimeDir, bundleDir: null };
 }
+
+/**
+ * Устанавливает глобальный рантайм в `~/.openspec-ru/runtime/` и создаёт шорткат `openspec-ru`
  * в доступной на запись директории из PATH (на Windows, macOS и Linux), чтобы после
  * первого запуска через `npx` команда `openspec-ru start web` работала напрямую.
  */
