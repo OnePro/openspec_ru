@@ -19,6 +19,7 @@ import { spawnSync } from 'node:child_process';
 import { ROOT, readManifest } from './lib/manifest.mjs';
 import { readUpstream } from './lib/github.mjs';
 import { TOOL_LAYOUTS, commandPath, skillPath } from './lib/tool-layouts.mjs';
+import { UI_COMMAND_ID, UI_SKILL_DIR, writeUiArtifacts } from './web/ui-skill-template.mjs';
 
 const CACHE = resolve(ROOT, process.env.RU_UPSTREAM_CACHE ?? '.cache/upstream');
 const DIST_RU = resolve(ROOT, 'dist-ru');
@@ -198,15 +199,18 @@ async function renderTools(upstream) {
   const schemasSrc = resolve(CACHE, 'schemas');
   if (existsSync(schemasSrc)) cpSync(schemasSrc, resolve(DIST_RU, 'schemas'), { recursive: true });
 
+  // Скилл и команда веб-панели (openspec-ui, ui) — собственные, не из апстрима
+  const uiFiles = writeUiArtifacts(DIST_RU);
+
   const meta = {
     upstream: { repo: upstream.repo, tag: upstream.tag, commit: upstream.commit },
     openspecVersion: version,
     tools: TOOL_LAYOUTS.map((t) => ({ ...t })),
-    skills: skills.map((s) => s.dirName),
-    commands: contents.map((c) => c.id),
+    skills: [...skills.map((s) => s.dirName), UI_SKILL_DIR],
+    commands: [...contents.map((c) => c.id), UI_COMMAND_ID],
   };
   writeFileSync(resolve(DIST_RU, 'bundle-meta.json'), `${JSON.stringify(meta, null, 2)}\n`);
-  console.log(`build-ru: пререндер: ${skillCount} tool-skills, ${commandCount} команд, schemas, bundle-meta.json`);
+  console.log(`build-ru: пререндер: ${skillCount} tool-skills, ${commandCount} команд, ${uiFiles.length} UI-файлов, schemas, bundle-meta.json`);
 }
 
 async function main() {

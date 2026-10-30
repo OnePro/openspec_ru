@@ -1,0 +1,9 @@
+.cache/
+.github/
+.agents/
+.claude/
+openspec/
+ru/
+website/
+**/*.test.mjs
+drift-report.md

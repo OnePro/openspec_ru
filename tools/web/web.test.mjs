@@ -152,3 +152,28 @@ test('4.1: POST /api/shutdown закрывает сервер и удаляет 
     }
   });
 });
+
+test('5.1: start web --detach возвращает управление сразу, сервер отвечает, stop web его гасит', { timeout: 30000 }, async () => {
+  await withTempProject(async (dir) => {
+    createOpenspecFixture(dir);
+    const started = spawnSync(
+      process.execPath,
+      [CLI_PATH, 'start', 'web', dir, '--detach', '--no-open', '--port', '0'],
+      { encoding: 'utf8', timeout: 20000 },
+    );
+    assert.equal(started.status, 0, `stderr: ${started.stderr}`);
+    assert.match(started.stdout, /запущен в фоне: http:\/\/localhost:\d+ \(PID \d+\)/);
+
+    const stateFile = getStateFilePath(dir);
+    const state = JSON.parse(readFileSync(stateFile, 'utf8'));
+    const res = await fetch(`${baseUrl(state.port)}/api/state`);
+    assert.equal(res.status, 200);
+    assert.equal((await res.json()).changes.some((c) => c.id === 'draft-change'), true);
+
+    const stopped = spawnSync(process.execPath, [CLI_PATH, 'stop', 'web', dir], { encoding: 'utf8', timeout: 20000 });
+    assert.equal(stopped.status, 0, `stderr: ${stopped.stderr}`);
+    assert.equal(existsSync(stateFile), false);
+    await new Promise((r) => setTimeout(r, 300));
+    await assert.rejects(fetch(`${baseUrl(state.port)}/api/state`));
+  });
+});

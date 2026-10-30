@@ -15,6 +15,9 @@ const UI_HTML_PATH = resolve(dirname(fileURLToPath(import.meta.url)), 'ui.html')
 const DEFAULT_PORT = 3000;
 const LAST_PORT = 3015;
 const DEBOUNCE_MS = 200;
+const CLI_PATH = resolve(dirname(fileURLToPath(import.meta.url)), '../apply/cli.mjs');
+const DETACH_TIMEOUT_MS = 4000;
+const DETACH_POLL_MS = 80;
 
 function isDirectory(absPath) {
   try {
@@ -232,6 +235,84 @@ export async function startWebServer(projectDir, options = {}) {
   }
 
   return { server, port, url, stateFile, close };
+}
+
+function readStateFile(stateFile) {
+  try {
+    return JSON.parse(readFileSync(stateFile, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Проверяет, что по адресу состояния отвечает веб-панель (GET /api/state → 200).
+ */
+async function isServerAlive(port) {
+  try {
+    const res = await fetch(`http://${HOST}:${port}/api/state`, { signal: AbortSignal.timeout(500) });
+    return res.status === 200;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Запускает веб-панель в отвязанном фоновом процессе и ждёт готовности по state-файлу.
+ * Если сервер для проекта уже жив, возвращает его данные без повторного запуска.
+ *
+ * @param {string} projectDir
+ * @param {object} [options]
+ * @param {number} [options.port] Явный порт (0 — любой свободный)
+ * @param {boolean} [options.openBrowser=true] Открыть браузер
+ */
+export async function startDetachedWebServer(projectDir, options = {}) {
+  const root = resolve(projectDir);
+  // Бросает NO_OPENSPEC_DIR (exitCode 1), если openspec/ отсутствует
+  scanOpenspecProject(root);
+
+  const stateFile = getStateFilePath(root);
+  const previous = readStateFile(stateFile);
+  if (previous?.port && (await isServerAlive(previous.port))) {
+    return {
+      alreadyRunning: true,
+      port: previous.port,
+      pid: previous.pid,
+      url: previous.url || `http://localhost:${previous.port}`,
+      stateFile,
+    };
+  }
+  removeFile(stateFile);
+
+  const args = [
+    CLI_PATH,
+    'start',
+    'web',
+    root,
+    ...(options.port !== undefined ? ['--port', String(options.port)] : []),
+    ...(options.openBrowser === false ? ['--no-open'] : []),
+  ];
+  const child = spawn(process.execPath, args, { detached: true, stdio: 'ignore', windowsHide: true });
+  child.on('error', () => {});
+  child.unref();
+
+  const deadline = Date.now() + DETACH_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    const state = readStateFile(stateFile);
+    if (state?.port && (await isServerAlive(state.port))) {
+      return {
+        alreadyRunning: false,
+        port: state.port,
+        pid: state.pid,
+        url: state.url,
+        stateFile,
+      };
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, DETACH_POLL_MS));
+  }
+  const err = new Error('Фоновый веб-сервер OpenSpec RU не ответил в отведённое время.');
+  err.exitCode = 1;
+  throw err;
 }
 
 /**

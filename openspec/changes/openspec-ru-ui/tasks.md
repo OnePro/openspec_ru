@@ -20,6 +20,11 @@
 - [x] 4.1 Написать E2E-тесты `tools/web/web.test.mjs`: блокировка `start web` в папке без `openspec/` (код `1`), запуск сервера на свободном порту, проверка `GET /api/state` (черновик без `tasks.md` в статусе `draft`, русские спецификации на Windows), получение SSE-события `update` при изменении файла и остановка через `stop web` / `POST /api/shutdown`
 - [x] 4.2 Обновить `README.md`: добавить раздел про запуск (`npx github:OnePro/openspec_ru start web [--port 3000]`) и остановку (`npx github:OnePro/openspec_ru stop web`) веб-панели
 
+## 5. Фоновый режим (`--detach`) и AI-скилл `openspec-ui`
+
+- [x] 5.1 Добавить флаг `--detach` (`-d`) в `openspec-ru start web` (`tools/web/server.mjs` и `tools/apply/cli.mjs`): отвязанный фоновый запуск с проверкой готовности по state-файлу и переиспользованием уже запущенного сервера; покрыть тестом в `tools/web/web.test.mjs`
+- [x] 5.2 Добавить скилл `openspec-ui` (`SKILL.md`) и slash-команду `ui` (`/opsx:ui` / `/opsx-ui`) в `tools/build-ru.mjs` и `dist-ru/` (для `skills/`, `tool-skills/<tool>/` и `commands/<tool>/`), доработать `tools/apply/index.mjs`, чтобы `applyRuPatch` устанавливал/обновлял их для каждого обнаруженного в проекте инструмента; проверить тестами и применить в текущем репозитории
+
 ## Последующие шаги процесса
 
 - Заархивировать change после выполнения всех задач и проверки работы веб-панели в браузере.

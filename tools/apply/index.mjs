@@ -3,8 +3,9 @@
 // идемпотентно заменяет skills и slash-команды топ-5 инструментов русскими
 // версиями из собранного бандла dist-ru/.
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, posix, resolve } from 'node:path';
+import { accessSync, chmodSync, constants, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import { delimiter, dirname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import {
@@ -14,6 +15,7 @@ import {
   commandPath,
   skillPath,
 } from '../lib/tool-layouts.mjs';
+import { UI_COMMAND_ID, UI_SKILL_DIR } from '../web/ui-skill-template.mjs';
 
 const APPLY_DIR = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = resolve(APPLY_DIR, '../..');
@@ -117,14 +119,59 @@ export function readBundleMeta(bundleDir = DEFAULT_BUNDLE_DIR) {
   return JSON.parse(readFileSync(metaPath, 'utf8'));
 }
 
+function quoteWinArg(arg) {
+  const s = String(arg);
+  if (!/[\s"&|<>^()]/.test(s)) return s;
+  return `"${s.replace(/"/g, '""')}"`;
+}
+
+/**
+ * Ищет исполняемый файл `openspec` в PATH (кроссплатформенно: Windows/macOS/Linux).
+ */
+export function findOpenspecInPath(envPath = process.env.PATH, platform = process.platform) {
+  const sep = platform === 'win32' ? ';' : delimiter;
+  const dirs = (envPath || '').split(sep).filter(Boolean);
+  const exts = platform === 'win32' ? ['.exe', '.cmd', '.bat', ''] : [''];
+  for (const d of dirs) {
+    for (const ext of exts) {
+      const candidate = join(d, `openspec${ext}`);
+      if (isFile(candidate)) return candidate;
+    }
+  }
+  return null;
+}
+
+/**
+ * Вызывает `openspec` без использования `shell: true` с массивом аргументов
+ * (устраняет Node.js DEP0190 DeprecationWarning на Windows, macOS и Linux).
+ */
+export function spawnOpenspec(args = [], options = {}) {
+  if (process.platform === 'win32') {
+    const bin = findOpenspecInPath();
+    if (!bin) {
+      return { status: 127, stdout: '', stderr: 'openspec not found in PATH' };
+    }
+    if (/\.(cmd|bat)$/i.test(bin)) {
+      const comspec = process.env.ComSpec || 'cmd.exe';
+      const cmdLine = `"${[bin, ...args].map(quoteWinArg).join(' ')}"`;
+      return spawnSync(comspec, ['/d', '/s', '/c', cmdLine], {
+        ...options,
+        shell: false,
+        windowsVerbatimArguments: true,
+      });
+    }
+    return spawnSync(bin, args, { ...options, shell: false });
+  }
+  return spawnSync('openspec', args, { ...options, shell: false });
+}
+
 /**
  * Определяет установленную версию openspec CLI (или возвращает null, если CLI недоступен).
  */
 export function detectInstalledOpenspecVersion() {
   try {
-    const res = spawnSync('openspec', ['--version'], {
+    const res = spawnOpenspec(['--version'], {
       encoding: 'utf8',
-      shell: process.platform === 'win32',
       timeout: 5000,
     });
     if (res.status !== 0 || !res.stdout) return null;
@@ -132,6 +179,91 @@ export function detectInstalledOpenspecVersion() {
     return match ? match[1] : null;
   } catch {
     return null;
+  }
+}
+
+/**
+ * Устанавливает глобальный рантайм в `~/.openspec-ru/runtime/` и создаёт шорткат `openspec-ru`
+ * в доступной на запись директории из PATH (на Windows, macOS и Linux), чтобы после
+ * первого запуска через `npx` команда `openspec-ru start web` работала напрямую.
+ */
+export function installGlobalCliShim(options = {}) {
+  const homeDir = options.homeDir ?? os.homedir();
+  const platform = options.platform ?? process.platform;
+  const envPath = options.envPath ?? process.env.PATH ?? '';
+  const sourceRoot = options.sourceRoot ?? REPO_ROOT;
+
+  const runtimeDir = resolve(homeDir, '.openspec-ru', 'runtime');
+  try {
+    mkdirSync(runtimeDir, { recursive: true });
+    if (resolve(sourceRoot) !== runtimeDir) {
+      for (const item of ['tools', 'dist-ru', 'package.json', 'upstream.json']) {
+        const src = resolve(sourceRoot, item);
+        if (existsSync(src)) {
+          cpSync(src, resolve(runtimeDir, item), { recursive: true, force: true });
+        }
+      }
+    }
+  } catch {
+    return { installed: false, binDir: null, runtimeDir };
+  }
+
+  const sep = platform === 'win32' ? ';' : ':';
+  const pathDirs = envPath.split(sep).map((d) => d.trim()).filter(Boolean);
+  const candidates = [];
+
+  const openspecBin = findOpenspecInPath(envPath, platform);
+  if (openspecBin) {
+    candidates.push(dirname(openspecBin));
+  }
+  if (platform === 'win32' && process.env.APPDATA) {
+    candidates.push(join(process.env.APPDATA, 'npm'));
+  } else {
+    candidates.push(join(homeDir, '.local', 'bin'));
+  }
+  for (const d of pathDirs) {
+    if (d.startsWith(homeDir) && !candidates.includes(d)) {
+      candidates.push(d);
+    }
+  }
+
+  let targetBinDir = null;
+  for (const dir of candidates) {
+    try {
+      if (!isDir(dir)) continue;
+      accessSync(dir, constants.W_OK);
+      targetBinDir = dir;
+      break;
+    } catch {
+      // Переходим к следующему кандидату
+    }
+  }
+
+  if (!targetBinDir) {
+    return { installed: false, binDir: null, runtimeDir };
+  }
+
+  const cliEntryPosix = '$HOME/.openspec-ru/runtime/tools/apply/cli.mjs';
+  const shContent = `#!/usr/bin/env sh\nexec node "${cliEntryPosix}" "$@"\n`;
+
+  try {
+    const shPath = join(targetBinDir, 'openspec-ru');
+    writeFileSync(shPath, shContent, 'utf8');
+    try {
+      chmodSync(shPath, 0o755);
+    } catch {
+      // На Windows chmod может игнорироваться
+    }
+
+    if (platform === 'win32') {
+      const cmdContent = `@echo off\r\nnode "%USERPROFILE%\\.openspec-ru\\runtime\\tools\\apply\\cli.mjs" %*\r\n`;
+      const ps1Content = `#!/usr/bin/env pwsh\r\n& node "$HOME/.openspec-ru/runtime/tools/apply/cli.mjs" @args\r\nexit $LASTEXITCODE\r\n`;
+      writeFileSync(join(targetBinDir, 'openspec-ru.cmd'), cmdContent, 'utf8');
+      writeFileSync(join(targetBinDir, 'openspec-ru.ps1'), ps1Content, 'utf8');
+    }
+    return { installed: true, binDir: targetBinDir, runtimeDir };
+  } catch {
+    return { installed: false, binDir: null, runtimeDir };
   }
 }
 
@@ -541,6 +673,38 @@ export function applyRuPatch(projectDir, options = {}) {
     }
   }
 
+  // 5b. Скилл openspec-ui и команда ui веб-панели: только в инициализированном проекте (есть openspec/config.yaml)
+  //      для инструментов из detectedTools, где есть каталог skills или команд. В totalUpdated не входят.
+  const bonus = { updated: [], unchanged: [] };
+  if (isFile(configAbs)) {
+    const syncBonusFile = (relPath, srcAbs) => {
+      if (!isFile(srcAbs)) return;
+      const targetAbs = resolve(targetDir, relPath);
+      const ruContent = normalizeLf(readFileSync(srcAbs, 'utf8'));
+      if (isFile(targetAbs) && normalizeLf(readFileSync(targetAbs, 'utf8')) === ruContent) {
+        bonus.unchanged.push(relPath);
+        return;
+      }
+      if (!dryRun) {
+        mkdirSync(dirname(targetAbs), { recursive: true });
+        writeFileSync(targetAbs, ruContent, 'utf8');
+      }
+      bonus.updated.push(relPath);
+    };
+
+    for (const detected of detectedTools) {
+      const layout = TOOL_LAYOUTS.find((t) => t.id === detected.id);
+      const uiSkillRel = skillPath(layout.id, UI_SKILL_DIR);
+      if (isDir(resolve(targetDir, layout.skillsDir))) {
+        syncBonusFile(uiSkillRel, resolve(bundleDir, 'tool-skills', layout.id, uiSkillRel));
+      }
+      if (layout.commandPattern && isDir(resolve(targetDir, layout.commandsDir))) {
+        const uiCmdRel = commandPath(layout.id, UI_COMMAND_ID);
+        syncBonusFile(uiCmdRel, resolve(bundleDir, 'commands', layout.id, uiCmdRel));
+      }
+    }
+  }
+
   if (!hasSupportedArtifacts && unsupportedTools.length === 0) {
     const noArtifactsMsg =
       'В проекте не обнаружено установленных артефактов OpenSpec. Сначала выполните «openspec init» в каталоге проекта.';
@@ -577,6 +741,7 @@ export function applyRuPatch(projectDir, options = {}) {
     hasSupportedArtifacts &&
     totalUpdated === 0 &&
     schemas.updated.length === 0 &&
+    bonus.updated.length === 0 &&
     !configUpdated;
   const reportLines = [
     `openspec-ru: бандл ${bundleTag} (OpenSpec ${expectedVersion})${dryRun ? ' [режим --dry-run, без записи на диск]' : ''}`,
@@ -612,6 +777,13 @@ export function applyRuPatch(projectDir, options = {}) {
     );
   }
 
+  if (bonus.updated.length > 0 || bonus.unchanged.length > 0) {
+    const actionLabel = dryRun ? 'будет обновлено' : 'обновлено';
+    reportLines.push(
+      `  - Скилл и команда веб-панели (openspec-ui, ui): ${actionLabel} ${bonus.updated.length}, уже актуально ${bonus.unchanged.length}`,
+    );
+  }
+
   if (allUpToDate) {
     const msg = `Все артефакты OpenSpec уже актуальны (проверено файлов: ${totalUnchanged}).`;
     messages.push(msg);
@@ -635,6 +807,7 @@ export function applyRuPatch(projectDir, options = {}) {
     versionMismatch,
     detectedTools,
     markers,
+    bonus,
     unsupportedTools,
     totalUpdated,
     totalUnchanged,

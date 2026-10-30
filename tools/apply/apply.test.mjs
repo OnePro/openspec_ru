@@ -18,6 +18,7 @@ import {
   REPO_ROOT,
   applyRuPatch,
   detectUnsupportedTools,
+  installGlobalCliShim,
   readBundleMeta,
   replaceBetweenMarkers,
 } from './index.mjs';
@@ -221,8 +222,9 @@ test('4.2 E2E: openspec init --tools claude (EN) -> apply -> RU -> повтор 
     assert.match(patchRes.stdout, new RegExp(`обновлено файлов: ${expectedTotal}`));
 
     // 3. Проверяем, что все созданные skills и команды стали русскими, а имена файлов и name: не изменились
-    assert.deepEqual(readdirSync(skillsRoot).sort(), skillDirsBefore);
-    assert.deepEqual(readdirSync(commandsRoot).sort(), cmdFilesBefore);
+    // плюс бонусные файлы веб-панели (openspec-ui, ui), созданные патчером
+    assert.deepEqual(readdirSync(skillsRoot).sort(), [...skillDirsBefore, 'openspec-ui'].sort());
+    assert.deepEqual(readdirSync(commandsRoot).sort(), [...cmdFilesBefore, 'ui.md'].sort());
 
     for (const d of skillDirsBefore) {
       const content = readFileSync(resolve(skillsRoot, d, 'SKILL.md'), 'utf8');
@@ -236,6 +238,11 @@ test('4.2 E2E: openspec init --tools claude (EN) -> apply -> RU -> повтор 
       assert.match(content, /\/opsx:/);
     }
     assert.equal(readFileSync(resolve(scratch, 'CLAUDE.md'), 'utf8'), claudeMdContent);
+    const uiSkillText = readFileSync(resolve(skillsRoot, 'openspec-ui/SKILL.md'), 'utf8');
+    assert.match(uiSkillText, CYRILLIC, '.claude/skills/openspec-ui/SKILL.md должен быть русским');
+    assert.equal(extractFrontmatterName(uiSkillText), 'openspec-ui');
+    assert.match(uiSkillText, /start web --detach/);
+    assert.match(readFileSync(resolve(commandsRoot, 'ui.md'), 'utf8'), CYRILLIC, '.claude/commands/opsx/ui.md должен быть русским');
     assert.match(
       readFileSync(resolve(scratch, 'openspec/schemas/spec-driven/schema.yaml'), 'utf8'),
       CYRILLIC,
@@ -454,5 +461,43 @@ test('4.5 E2E: openspec-ru update блокирует без .git и без opens
       readFileSync(resolve(scratch, 'openspec/schemas/spec-driven/schema.yaml'), 'utf8'),
       CYRILLIC,
     );
+  });
+});
+
+test('4.5 unit: installGlobalCliShim создаёт рабочие шорткаты openspec-ru для Linux/macOS и Windows и не вызывает DEP0190', () => {
+  withTempDir((fakeHome) => {
+    const unixBin = resolve(fakeHome, '.local/bin');
+    mkdirSync(unixBin, { recursive: true });
+
+    const unixRes = installGlobalCliShim({
+      homeDir: fakeHome,
+      platform: 'linux',
+      envPath: `/usr/bin:${unixBin}`,
+    });
+    assert.equal(unixRes.installed, true);
+    assert.equal(unixRes.binDir, unixBin);
+    assert.equal(existsSync(resolve(unixBin, 'openspec-ru')), true);
+    assert.equal(existsSync(resolve(fakeHome, '.openspec-ru/runtime/tools/apply/cli.mjs')), true);
+
+    const winBin = resolve(fakeHome, 'win-bin');
+    mkdirSync(winBin, { recursive: true });
+    const winRes = installGlobalCliShim({
+      homeDir: fakeHome,
+      platform: 'win32',
+      envPath: `C:\\Windows\\System32;${winBin}`,
+    });
+    assert.equal(winRes.installed, true);
+    assert.equal(existsSync(resolve(winBin, 'openspec-ru.cmd')), true);
+    assert.equal(existsSync(resolve(winBin, 'openspec-ru.ps1')), true);
+    assert.equal(existsSync(resolve(winBin, 'openspec-ru')), true);
+
+    // Проверяем отсутствие DEP0190 при запуске с --pending-deprecation
+    const depCheck = spawnSync(
+      process.execPath,
+      ['--pending-deprecation', CLI_PATH, '--version'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(depCheck.status, 0);
+    assert.doesNotMatch(depCheck.stderr, /DEP0190/);
   });
 });

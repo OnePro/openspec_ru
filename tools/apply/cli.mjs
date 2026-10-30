@@ -2,7 +2,7 @@
 // CLI патчера openspec-ru.
 // Использование:
 //   openspec-ru apply [targetDir] [--dry-run]
-//   openspec-ru start web [targetDir] [--port <port>] [--no-open]
+//   openspec-ru start web [targetDir] [--port <port>] [--no-open] [--detach|-d]
 //   openspec-ru stop web [targetDir]
 //   node tools/apply/cli.mjs apply [targetDir] [--dry-run]
 //   node tools/apply/ apply [targetDir] [--dry-run]
@@ -12,8 +12,14 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { TOOL_IDS } from '../lib/tool-layouts.mjs';
-import { applyRuPatch, detectInstalledOpenspecVersion, readBundleMeta } from './index.mjs';
-import { startWebServer, stopWebServer } from '../web/server.mjs';
+import {
+  applyRuPatch,
+  detectInstalledOpenspecVersion,
+  installGlobalCliShim,
+  readBundleMeta,
+  spawnOpenspec,
+} from './index.mjs';
+import { startDetachedWebServer, startWebServer, stopWebServer } from '../web/server.mjs';
 
 const WEB_COMMANDS = new Set(['start', 'stop', 'ui']);
 
@@ -33,7 +39,7 @@ export function formatHelp(meta) {
     '  update [каталог]  Выполнить штатный openspec update и поверх применить свежий RU-бандл',
     '  apply [каталог]   Перезаписать установленные OpenSpec skills и команды русскими версиями',
     '                    (требует инициализированный Git и выполненный openspec init)',
-    '  start web [каталог] [--port 3000] [--no-open]',
+    '  start web [каталог] [--port 3000] [--no-open] [--detach|-d]',
     '                    Запустить веб-панель изменений и спецификаций (алиас: ui)',
     '  stop web [каталог]',
     '                    Остановить веб-панель, запущенную для этого репозитория (алиас: ui --stop)',
@@ -43,6 +49,7 @@ export function formatHelp(meta) {
     '  -f, --force       Передать --force в штатный openspec update (для команды update)',
     '  --port <порт>     Порт веб-панели (по умолчанию 3000, при занятости — до 3015)',
     '  --no-open         Не открывать браузер при запуске веб-панели',
+    '  -d, --detach      Запустить веб-панель в фоне и сразу вернуть управление (для start web)',
     '  --stop            Остановить веб-панель (для команды ui)',
     '  -v, --version     Вывести версию бандла',
     '  -h, --help        Показать эту справку',
@@ -59,6 +66,7 @@ async function runWebCommand(argv, io) {
   const command = argv[0];
   let stop = command === 'stop';
   let openBrowser = true;
+  let detach = false;
   let port;
   const positionals = [];
 
@@ -67,6 +75,8 @@ async function runWebCommand(argv, io) {
     const arg = args[i];
     if (arg === '--no-open') {
       openBrowser = false;
+    } else if (arg === '--detach' || arg === '-d') {
+      detach = true;
     } else if (arg === '--stop') {
       stop = true;
     } else if (arg === '--port' || arg.startsWith('--port=')) {
@@ -98,6 +108,18 @@ async function runWebCommand(argv, io) {
     const result = await stopWebServer(targetDir);
     (result.ok ? io.stdout : io.stderr).write(`${result.message}\n`);
     return result.exitCode;
+  }
+
+  if (detach) {
+    let res;
+    try {
+      res = await startDetachedWebServer(targetDir, { port, openBrowser });
+    } catch (err) {
+      io.stderr.write(`${err.message}\n`);
+      return err.exitCode ?? 1;
+    }
+    io.stdout.write(`OpenSpec RU UI запущен в фоне: ${res.url} (PID ${res.pid})\nОстановка: openspec-ru stop web\n`);
+    return 0;
   }
 
   let web;
@@ -159,16 +181,16 @@ export function runCli(argv = process.argv.slice(2), io = { stdout: process.stdo
       );
       return 1;
     }
-    const initRes = spawnSync('openspec', ['init', ...initArgs], {
+    const initRes = spawnOpenspec(['init', ...initArgs], {
       cwd: targetDir,
       stdio: 'inherit',
-      shell: process.platform === 'win32',
     });
     if (initRes.status !== 0) {
       return initRes.status ?? 1;
     }
     const patchRes = applyRuPatch(targetDir, { dryRun: false });
     if (patchRes.ok) {
+      installGlobalCliShim();
       io.stdout.write(`${patchRes.report}\n`);
     } else {
       io.stderr.write(`${patchRes.report}\n`);
@@ -208,10 +230,9 @@ export function runCli(argv = process.argv.slice(2), io = { stdout: process.stdo
     if (!dryRun && detectInstalledOpenspecVersion()) {
       const updateArgs = ['update'];
       if (force) updateArgs.push('--force');
-      const updateRes = spawnSync('openspec', updateArgs, {
+      const updateRes = spawnOpenspec(updateArgs, {
         cwd: targetDir,
         stdio: 'inherit',
-        shell: process.platform === 'win32',
       });
       if (updateRes.status !== 0) {
         return updateRes.status ?? 1;
@@ -219,6 +240,7 @@ export function runCli(argv = process.argv.slice(2), io = { stdout: process.stdo
     }
     const patchRes = applyRuPatch(targetDir, { dryRun });
     if (patchRes.ok) {
+      if (!dryRun) installGlobalCliShim();
       io.stdout.write(`${patchRes.report}\n`);
     } else {
       io.stderr.write(`${patchRes.report}\n`);
@@ -251,6 +273,7 @@ export function runCli(argv = process.argv.slice(2), io = { stdout: process.stdo
 
   const result = applyRuPatch(targetDir, { dryRun });
   if (result.ok) {
+    if (!dryRun) installGlobalCliShim();
     io.stdout.write(`${result.report}\n`);
   } else {
     io.stderr.write(`${result.report}\n`);

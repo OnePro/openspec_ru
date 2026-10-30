@@ -64,7 +64,8 @@
     "openspec-bulk-archive-change",
     "openspec-verify-change",
     "openspec-onboard",
-    "openspec-propose"
+    "openspec-propose",
+    "openspec-ui"
   ],
   "commands": [
     "explore",
@@ -78,6 +79,7 @@
     "bulk-archive",
     "verify",
     "onboard",
-    "propose"
+    "propose",
+    "ui"
   ]
 }
