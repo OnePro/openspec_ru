@@ -11,6 +11,8 @@
   },
   "scripts": {
     "apply:ru": "node tools/apply/cli.mjs apply",
+    "web:start": "node tools/apply/cli.mjs start web",
+    "web:stop": "node tools/apply/cli.mjs stop web",
     "manifest:seed": "node tools/seed-manifest.mjs",
     "drift:check": "node tools/drift-check.mjs",
     "drift:diff": "node tools/drift-diff.mjs",

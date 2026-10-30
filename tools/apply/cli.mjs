@@ -2,6 +2,8 @@
 // CLI патчера openspec-ru.
 // Использование:
 //   openspec-ru apply [targetDir] [--dry-run]
+//   openspec-ru start web [targetDir] [--port <port>] [--no-open]
+//   openspec-ru stop web [targetDir]
 //   node tools/apply/cli.mjs apply [targetDir] [--dry-run]
 //   node tools/apply/ apply [targetDir] [--dry-run]
 
@@ -11,6 +13,9 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { TOOL_IDS } from '../lib/tool-layouts.mjs';
 import { applyRuPatch, readBundleMeta } from './index.mjs';
+import { startWebServer, stopWebServer } from '../web/server.mjs';
+
+const WEB_COMMANDS = new Set(['start', 'stop', 'ui']);
 
 export function formatHelp(meta) {
   const tag = meta?.upstream?.tag ?? 'v1.15.0';
@@ -26,14 +31,95 @@ export function formatHelp(meta) {
     '  apply [каталог]   Перезаписать установленные OpenSpec skills и команды русскими версиями',
     '                    (требует инициализированный Git и выполненный openspec init)',
     '  init [...]        Выполнить openspec init (только если в папке инициализирован Git) и сразу накатить RU-патч',
+    '  start web [каталог] [--port 3000] [--no-open]',
+    '                    Запустить веб-панель изменений и спецификаций (алиас: ui)',
+    '  stop web [каталог]',
+    '                    Остановить веб-панель, запущенную для этого репозитория (алиас: ui --stop)',
     '',
     'Опции:',
     '  -n, --dry-run     Показать, какие файлы были бы обновлены, без записи на диск',
+    '  --port <порт>     Порт веб-панели (по умолчанию 3000, при занятости — до 3015)',
+    '  --no-open         Не открывать браузер при запуске веб-панели',
+    '  --stop            Остановить веб-панель (для команды ui)',
     '  -v, --version     Вывести версию бандла',
     '  -h, --help        Показать эту справку',
     '',
     `Поддерживаемые инструменты (топ-5): ${TOOL_IDS.join(', ')}`,
   ].join('\n');
+}
+
+/**
+ * Команды `start web`, `stop web` и `ui`. Возвращает Promise с кодом выхода;
+ * для `start web` промис завершается после остановки сервера.
+ */
+async function runWebCommand(argv, io) {
+  const command = argv[0];
+  let stop = command === 'stop';
+  let openBrowser = true;
+  let port;
+  const positionals = [];
+
+  const args = argv.slice(1);
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--no-open') {
+      openBrowser = false;
+    } else if (arg === '--stop') {
+      stop = true;
+    } else if (arg === '--port' || arg.startsWith('--port=')) {
+      const raw = arg === '--port' ? args[++i] : arg.slice('--port='.length);
+      port = Number(raw);
+      if (!Number.isInteger(port) || port < 0 || port > 65535 || raw === undefined || raw === '') {
+        io.stderr.write(`Некорректный порт: ${raw ?? '(не указан)'}\n`);
+        return 1;
+      }
+    } else if (arg.startsWith('-')) {
+      io.stderr.write(`Неизвестный флаг: ${arg}\n`);
+      return 1;
+    } else {
+      positionals.push(arg);
+    }
+  }
+
+  if (command !== 'ui') {
+    if (positionals[0] !== 'web') {
+      io.stderr.write(`Укажите подкоманду: openspec-ru ${command} web\n`);
+      return 1;
+    }
+    positionals.shift();
+  }
+
+  const targetDir = resolve(positionals[0] ?? process.cwd());
+
+  if (stop) {
+    const result = await stopWebServer(targetDir);
+    (result.ok ? io.stdout : io.stderr).write(`${result.message}\n`);
+    return result.exitCode;
+  }
+
+  let web;
+  try {
+    web = await startWebServer(targetDir, { port, openBrowser });
+  } catch (err) {
+    io.stderr.write(`${err.message}\n`);
+    return err.exitCode ?? 1;
+  }
+
+  io.stdout.write(`OpenSpec RU UI запущен: ${web.url}\n`);
+  io.stdout.write('Остановка: Ctrl+C, кнопка в интерфейсе или команда openspec-ru stop web\n');
+
+  return new Promise((resolveRun) => {
+    const onSignal = () => {
+      void web.close();
+    };
+    process.on('SIGINT', onSignal);
+    process.on('SIGTERM', onSignal);
+    web.server.once('close', () => {
+      process.off('SIGINT', onSignal);
+      process.off('SIGTERM', onSignal);
+      resolveRun(0);
+    });
+  });
 }
 
 export function runCli(argv = process.argv.slice(2), io = { stdout: process.stdout, stderr: process.stderr }) {
@@ -54,6 +140,10 @@ export function runCli(argv = process.argv.slice(2), io = { stdout: process.stdo
     const ver = meta?.openspecVersion ?? 'unknown';
     io.stdout.write(`openspec-ru (бандл ${tag}, OpenSpec ${ver})\n`);
     return 0;
+  }
+
+  if (WEB_COMMANDS.has(argv[0])) {
+    return runWebCommand(argv, io);
   }
 
   if (argv[0] === 'init') {
@@ -131,9 +221,10 @@ function isCliMain() {
 }
 
 if (isCliMain()) {
-  const code = runCli(process.argv.slice(2));
-  if (code !== 0) {
-    process.exitCode = code;
-  }
+  Promise.resolve(runCli(process.argv.slice(2))).then((code) => {
+    if (code !== 0) {
+      process.exitCode = code;
+    }
+  });
 }
 

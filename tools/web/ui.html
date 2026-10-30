@@ -1,0 +1,874 @@
+<!doctype html>
+<html lang="ru" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenSpec RU — панель изменений</title>
+<script>
+  // Тема применяется до отрисовки, чтобы не было вспышки
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('osru-theme'); } catch (e) {}
+    var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.classList.toggle('dark', dark);
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // Все цвета берутся из CSS-переменных (RGB-триплеты) — см. :root и .dark ниже
+  const v = (n) => `rgb(var(--${n}) / <alpha-value>)`;
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          bg: v('bg'), col: v('col'), surface: v('surface'), 'surface-2': v('surface-2'), 'surface-3': v('surface-3'),
+          line: v('line'), 'line-strong': v('line-strong'),
+          fg: v('fg'), 'fg-2': v('fg-2'), muted: v('muted'),
+          accent: v('accent'), success: v('success'), warning: v('warning'), danger: v('danger'),
+          when: v('when'), then: v('then'), code: v('code'),
+        },
+        fontFamily: {
+          sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Inter', 'Roboto', 'sans-serif'],
+          mono: ['ui-monospace', '"SF Mono"', '"JetBrains Mono"', 'Menlo', 'Consolas', 'monospace'],
+        },
+        boxShadow: {
+          card: '0 1px 2px rgb(var(--shadow) / .06), 0 1px 0 rgb(255 255 255 / .02) inset',
+          lift: '0 8px 24px -6px rgb(var(--shadow) / .22)',
+          dialog: '0 24px 80px -12px rgb(0 0 0 / .5)',
+        },
+      },
+    },
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+<style>
+  /* ===== Дизайн-токены ===== */
+  :root {
+    --bg: 245 246 248;      --col: 237 239 243;     --surface: 255 255 255;
+    --surface-2: 243 244 247; --surface-3: 231 234 240;
+    --line: 226 229 236;    --line-strong: 206 211 221;
+    --fg: 20 24 33;         --fg-2: 69 76 92;       --muted: 107 115 133;
+    --accent: 79 70 229;    --success: 5 150 105;   --warning: 180 83 9;   --danger: 220 38 38;
+    --when: 37 99 235;      --then: 5 150 105;      --code: 246 247 250;
+    --draft: 124 58 237;    --todo: 2 132 199;      --progress: 217 119 6;
+    --done: 5 150 105;      --archive: 107 115 133;
+    --tip: 20 24 33;        --tip-fg: 255 255 255;  --shadow: 16 24 40;
+    color-scheme: light;
+  }
+  .dark {
+    --bg: 11 13 18;         --col: 16 19 26;        --surface: 21 25 34;
+    --surface-2: 27 32 44;  --surface-3: 36 42 57;
+    --line: 37 43 58;       --line-strong: 52 60 80;
+    --fg: 231 234 241;      --fg-2: 170 177 194;    --muted: 123 131 152;
+    --accent: 139 147 255;  --success: 52 211 153;  --warning: 251 191 36; --danger: 248 113 113;
+    --when: 96 165 250;     --then: 52 211 153;     --code: 14 17 24;
+    --draft: 167 139 250;   --todo: 56 189 248;     --progress: 251 191 36;
+    --done: 52 211 153;     --archive: 139 147 167;
+    --tip: 231 234 241;     --tip-fg: 11 13 18;     --shadow: 0 0 0;
+    color-scheme: dark;
+  }
+  [x-cloak] { display: none !important; }
+  body { -webkit-font-smoothing: antialiased; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  ::selection { background: rgb(var(--accent) / .25); }
+  .scroll-thin::-webkit-scrollbar { height: 8px; width: 8px; }
+  .scroll-thin::-webkit-scrollbar-thumb { background: rgb(var(--line-strong)); border-radius: 8px; }
+  .scroll-thin::-webkit-scrollbar-track { background: transparent; }
+
+  /* Тултип */
+  [data-tip] { position: relative; }
+  [data-tip]:hover::after {
+    content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    background: rgb(var(--tip)); color: rgb(var(--tip-fg)); font: 500 11.5px/1.3 -apple-system, "Segoe UI", sans-serif;
+    padding: 5px 8px; border-radius: 6px; white-space: nowrap; z-index: 40; pointer-events: none;
+    box-shadow: 0 4px 14px rgb(0 0 0 / .25);
+  }
+</style>
+
+<style type="text/tailwindcss">
+  @layer components {
+    /* ---- Плашки цепочки артефактов ---- */
+    .chip { @apply flex h-6 items-center gap-1 rounded-[7px] border border-transparent px-1.5 text-[11.5px] font-medium whitespace-nowrap; }
+    .chip > span { @apply flex shrink-0; }
+    .chip svg { @apply h-3 w-3 shrink-0; stroke-width: 2.6; }
+    .chip-complete { @apply bg-accent/[.13] text-accent; }
+    .chip-ready { @apply border-dashed border-accent/50 text-fg; }
+    .chip-blocked { @apply bg-surface-2 text-muted; }
+    .chip .next { @apply ml-0.5 rounded px-1 font-mono text-[9.5px] font-semibold uppercase tracking-wide bg-accent/[.13] text-accent; }
+
+    /* ---- Нормативные ключевые слова ---- */
+    .kw { @apply rounded border px-[5px] py-px align-[1px] font-mono text-[10.5px] font-bold tracking-wide border-accent/30 bg-accent/[.12] text-accent; }
+    .kw-not { @apply border-danger/30 bg-danger/[.12] text-danger; }
+    .kw-soft { @apply border-warning/30 bg-warning/[.12] text-warning; }
+
+    /* ---- Отрендеренный Markdown ---- */
+    .md { @apply max-w-[820px] text-[14px] leading-[1.7] text-fg-2; }
+    .md > :first-child { @apply mt-0; }
+    .md h1 { @apply mb-3 mt-0 text-[22px] font-semibold tracking-tight text-fg; }
+    .md h2 { @apply mb-2.5 mt-8 border-b border-line pb-1.5 text-[17px] font-semibold text-fg; }
+    .md h3 { @apply mb-2 mt-6 text-[15px] font-semibold text-fg; }
+    .md h4 { @apply mb-1.5 mt-4 text-[13.5px] font-semibold text-fg; }
+    .md p { @apply my-2.5; }
+    .md strong { @apply font-semibold text-fg; }
+    .md a { @apply text-accent underline decoration-accent/40 underline-offset-2; }
+    .md ul, .md ol { @apply my-2.5 pl-5; }
+    .md ul { @apply list-disc; }
+    .md ol { @apply list-decimal; }
+    .md li { @apply my-1 marker:text-muted; }
+    .md li.sub { @apply ml-5; }
+    .md li.task { @apply -ml-5 flex list-none items-start gap-2.5; }
+    .md code, .inline-code, .step code, .req-head code, .scn-title code { @apply rounded-[5px] border border-line bg-surface-2 px-[5px] py-px font-mono text-[12.5px] text-fg; }
+    .md pre { @apply relative my-3.5 overflow-x-auto rounded-[10px] border border-line bg-code px-4 py-3.5 font-mono text-[12.5px] leading-[1.6] text-fg; }
+    .md pre code { @apply border-0 bg-transparent p-0 text-inherit; }
+    .md pre[data-lang]::before { content: attr(data-lang); @apply absolute right-2.5 top-2 font-mono text-[10px] uppercase tracking-wider text-muted; }
+    .md blockquote { @apply my-3.5 rounded-r-lg border-l-[3px] border-accent/50 bg-accent/[.07] px-3.5 py-2; }
+    .md hr { @apply my-6 border-line; }
+    .md .table-wrap { @apply my-3.5 overflow-x-auto rounded-[10px] border border-line; }
+    .md table { @apply w-full border-collapse text-[13px]; }
+    .md th { @apply border-b border-line bg-surface-2 px-3 py-2 text-left font-semibold text-fg; }
+    .md td { @apply border-b border-line px-3 py-2 align-top; }
+    .md tr:last-child td { @apply border-b-0; }
+
+    /* ---- Чекбоксы ---- */
+    .cb { @apply mt-[3px] grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[5px] border-[1.5px] border-line-strong text-white; }
+    .cb svg { @apply h-3 w-3; stroke-width: 3.2; }
+    .cb.on { @apply border-success bg-success; }
+    .dark .cb.on { color: rgb(var(--bg)); }
+
+    /* ---- Спецификация OpenSpec ---- */
+    .purpose { @apply mb-6 rounded-xl border border-accent/25 bg-accent/[.06] px-[18px] py-4; }
+    .purpose-label { @apply mb-1.5 font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-accent; }
+    .purpose .md { @apply text-[15px] leading-[1.65] text-fg; }
+    .purpose .md p { @apply my-0; }
+    .sec-head { @apply mb-3 mt-7 flex items-center gap-2 text-[11.5px] font-semibold uppercase tracking-[.07em] text-muted; }
+    .sec-head::after { content: ''; @apply h-px flex-1 bg-line; }
+    .delta { @apply rounded px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider; }
+    .delta-added { @apply bg-success/[.14] text-success; }
+    .delta-modified { @apply bg-warning/[.14] text-warning; }
+    .delta-removed { @apply bg-danger/[.14] text-danger; }
+    .req { @apply mb-3.5 scroll-mt-24 overflow-hidden rounded-xl border border-line bg-surface shadow-card; }
+    .req-head { @apply flex items-start gap-2.5 border-b border-line bg-surface-2/70 px-4 py-3; }
+    .req-num { @apply mt-px rounded-[5px] bg-accent/[.13] px-1.5 py-0.5 font-mono text-[11px] font-bold text-accent; }
+    .req-head h3 { @apply m-0 flex-1 text-[14.5px] font-semibold leading-[1.45] text-fg; }
+    .req-tag { @apply mt-0.5 whitespace-nowrap font-mono text-[11px] text-muted; }
+    .req-body { @apply px-4 pb-1 pt-3; }
+    .req-body .md p { @apply mb-2.5 mt-0; }
+    .scn { @apply mx-4 mb-3.5 mt-1 rounded-[10px] border border-line bg-bg/60; }
+    .scn-title { @apply flex items-center gap-2 border-b border-dashed border-line px-3 py-2 text-[12.5px] text-fg-2; }
+    .scn-title b { @apply font-semibold text-fg; }
+    .scn-title svg { @apply h-3.5 w-3.5 text-muted; }
+    .steps { @apply grid gap-1.5 px-3 pb-2.5 pt-2; }
+    .step { @apply grid grid-cols-[60px_1fr] items-baseline gap-2.5 text-[13.5px] leading-[1.55] text-fg; }
+    .sk { @apply rounded-[5px] py-0.5 text-center font-mono text-[10.5px] font-bold tracking-wide; }
+    .sk-when { @apply bg-when/[.14] text-when; }
+    .sk-then { @apply bg-then/[.14] text-then; }
+    .sk-and { @apply bg-surface-3 text-fg-2; }
+
+    /* ---- Пустые состояния ---- */
+    .empty { @apply grid place-items-center px-5 py-16 text-center text-muted; }
+    .empty-ico { @apply mb-3.5 grid h-12 w-12 place-items-center rounded-full border border-dashed border-line-strong text-muted; }
+    .empty h3 { @apply mb-1 text-[15px] font-semibold text-fg; }
+    .empty p { @apply max-w-[420px] text-[13px] leading-relaxed; }
+  }
+</style>
+</head>
+
+<body class="min-h-screen bg-bg font-sans text-[14px] text-fg" x-data="app()" @keydown.window="onKey($event)">
+
+<!-- ============================ ШАПКА ============================ -->
+<header class="sticky top-0 z-30 border-b border-line bg-bg/80 backdrop-blur-xl backdrop-saturate-150">
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-2.5 px-3.5 py-2.5 xl:h-14 xl:flex-nowrap xl:px-5 xl:py-0">
+
+    <!-- Бренд -->
+    <div class="flex shrink-0 items-center gap-2.5">
+      <svg class="h-[26px] w-[26px]" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="rgb(var(--accent))"/>
+        <path d="M12 9.5H9.5v13H12M20 9.5h2.5v13H20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14 13.5h4M14 16h4M14 18.5h2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+      </svg>
+      <span class="font-semibold tracking-tight">OpenSpec <span class="text-accent">RU</span></span>
+      <span class="rounded-full border border-line px-1.5 py-px font-mono text-[11px] text-muted" x-text="bundleVersion"></span>
+    </div>
+
+    <!-- Репозиторий + Live -->
+    <div class="ml-auto inline-flex h-7 shrink-0 items-center gap-2 rounded-full border px-2.5 text-xs transition order-1 xl:order-none xl:ml-1"
+      :class="live ? 'border-success/35 bg-success/10 text-fg' : 'border-line bg-surface-2 text-muted'"
+      :data-tip="live ? 'Живое обновление (SSE)' : 'Нет связи с сервером'">
+      <span class="relative flex h-2 w-2">
+        <span x-show="live" class="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60"></span>
+        <span class="relative inline-flex h-2 w-2 rounded-full" :class="live ? 'bg-success' : 'border-[1.5px] border-muted'"></span>
+      </span>
+      <span class="hidden font-mono sm:inline" x-text="repoName"></span>
+      <span class="font-semibold" :class="live ? 'text-success' : ''" x-text="live ? 'Live' : 'Отключено'"></span>
+    </div>
+
+    <!-- Переключатель экранов -->
+    <nav class="order-2 flex w-full rounded-[10px] border border-line bg-surface-2 p-[3px] sm:order-none sm:w-auto xl:ml-2" role="tablist">
+      <template x-for="t in [{k:'board', l:'Доска изменений', n: active.length, i:'board'}, {k:'specs', l:'Спецификации', n: specs.length, i:'book'}]" :key="t.k">
+        <button type="button" role="tab" @click="view = t.k" :aria-selected="view === t.k"
+          class="flex h-7 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-[7px] px-2 text-[13px] font-medium transition sm:flex-none sm:px-3"
+          :class="view === t.k ? 'bg-surface text-fg shadow-card ring-1 ring-line' : 'text-fg-2 hover:text-fg'">
+          <span class="hidden sm:inline-flex" x-html="icon(t.i)"></span>
+          <span x-text="t.l"></span>
+          <span class="tabular rounded-full px-1.5 py-px font-mono text-[11px] font-semibold"
+            :class="view === t.k ? 'bg-accent/[.13] text-accent' : 'bg-surface-3 text-fg-2'" x-text="t.n"></span>
+        </button>
+      </template>
+    </nav>
+
+    <!-- Инструменты -->
+    <div class="order-3 flex w-full items-center gap-2 xl:order-none xl:ml-auto xl:w-auto">
+      <label class="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-[9px] border border-line bg-surface pl-2.5 pr-1.5 text-muted transition focus-within:border-accent/50 focus-within:ring-[3px] focus-within:ring-accent/15 xl:w-[280px] xl:flex-none">
+        <span x-html="icon('search')"></span>
+        <input x-ref="search" x-model="q" type="text" placeholder="Поиск изменений и спецификаций..."
+          class="min-w-0 flex-1 bg-transparent text-[13px] text-fg outline-none placeholder:text-muted">
+        <button type="button" x-show="q" @click="q = ''" class="grid h-5 w-5 place-items-center rounded text-muted hover:text-fg" aria-label="Очистить" x-html="icon('x', 'h-3.5 w-3.5')"></button>
+        <kbd x-show="!q" class="grid h-5 min-w-[20px] place-items-center rounded-[5px] border border-b-2 border-line bg-surface-2 px-1 font-mono text-[11px] text-muted">/</kbd>
+      </label>
+
+      <button type="button" @click="showArchive = !showArchive; view = 'board'" :aria-pressed="showArchive"
+        class="inline-flex h-8 shrink-0 items-center gap-2 rounded-[9px] border px-2.5 text-[13px] font-medium transition"
+        :class="showArchive ? 'border-accent/45 bg-accent/10 text-accent' : 'border-line bg-surface text-fg-2 hover:border-line-strong hover:text-fg'"
+        :data-tip="showArchive ? 'Скрыть колонку «Архив»' : 'Показать колонку «Архив»'">
+        <span x-html="icon('archive')"></span>
+        <span class="hidden sm:inline">Архив</span>
+        <span class="tabular font-mono text-[11px] font-semibold" x-text="archived.length"></span>
+      </button>
+
+      <button type="button" @click="toggleTheme()"
+        class="grid h-8 w-8 shrink-0 place-items-center rounded-[9px] border border-line bg-surface text-fg-2 transition hover:border-line-strong hover:text-fg"
+        :data-tip="dark ? 'Светлая тема' : 'Тёмная тема'" :aria-label="dark ? 'Включить светлую тему' : 'Включить тёмную тему'">
+        <span x-html="icon(dark ? 'sun' : 'moon')"></span>
+      </button>
+
+      <button type="button" @click="shutdownServer()" :data-tip="'Остановить сервер'" aria-label="Остановить сервер"
+        class="grid h-8 w-8 shrink-0 place-items-center rounded-[9px] border border-line bg-surface text-fg-2 transition hover:border-danger/50 hover:text-danger">
+        <span x-html="icon('power')"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Плашка потери связи -->
+  <div x-show="!live" x-cloak x-transition.opacity class="flex items-center justify-center gap-2 border-t border-warning/25 bg-warning/10 px-4 py-1.5 text-xs text-warning">
+    <span x-html="icon('alert', 'h-3.5 w-3.5')"></span>
+    <span x-text="stopped ? 'Сервер остановлен. Запустите его командой openspec-ru start web' : 'Связь с сервером потеряна — данные могут быть неактуальны. Переподключение…'"></span>
+  </div>
+</header>
+
+<!-- ============================ ЭКРАН 1: КАНБАН ============================ -->
+<main x-show="view === 'board'" class="px-3.5 pb-10 pt-4 md:px-5 md:pt-5">
+  <div class="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+    <div>
+      <h1 class="text-[18px] font-semibold tracking-tight">Изменения</h1>
+      <div class="mt-0.5 flex flex-wrap items-center gap-x-2 text-[12.5px] text-muted">
+        <span class="font-mono">openspec/changes/</span>
+        <span>·</span>
+        <span class="tabular" x-text="boardSummary"></span>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-1.5 text-[11.5px] text-muted">
+      <span class="mr-1">Артефакты:</span>
+      <span class="chip chip-complete"><span x-html="icon('check')"></span>Написан</span>
+      <span class="chip chip-ready">Следующий<span class="next">след.</span></span>
+      <span class="chip chip-blocked"><span x-html="icon('lock')"></span>Заблокирован</span>
+    </div>
+  </div>
+
+  <div class="scroll-thin grid snap-x snap-mandatory auto-cols-[86%] grid-flow-col items-start gap-3.5 overflow-x-auto pb-2 sm:snap-none sm:auto-cols-[minmax(272px,1fr)]">
+    <template x-for="col in visibleCols" :key="col.key">
+      <section class="flex snap-start flex-col rounded-2xl border border-t-2 border-line bg-col md:min-h-[calc(100vh-196px)]"
+        :style="{ borderTopColor: `rgb(var(--${col.key}))` }">
+        <header class="flex items-center gap-2.5 border-b border-line px-3.5 pb-2.5 pt-3">
+          <span class="h-2 w-2 shrink-0 rounded-full" :style="{ background: `rgb(var(--${col.key}))` }"></span>
+          <div class="min-w-0">
+            <div class="text-[13px] font-semibold leading-tight" x-text="col.title"></div>
+            <div class="truncate text-[11.5px] text-muted" x-text="col.sub"></div>
+          </div>
+          <span class="tabular ml-auto rounded-full bg-surface-3 px-2 py-px font-mono text-[11px] font-semibold text-fg-2" x-text="colItems(col.key).length"></span>
+        </header>
+
+        <div class="flex flex-col gap-2.5 p-2.5">
+          <template x-for="c in colItems(col.key)" :key="c.id">
+            <article tabindex="0" role="button" @click="openChange(c.id)" @keydown.enter="openChange(c.id)"
+              class="group cursor-pointer rounded-xl border border-line bg-surface p-[13px] pb-3 shadow-card outline-none transition hover:-translate-y-px hover:border-line-strong hover:shadow-lift focus-visible:ring-2 focus-visible:ring-accent"
+              :class="c.status === 'archive' && 'opacity-80 hover:opacity-100'">
+              <div class="flex items-center justify-between gap-2">
+                <span class="truncate font-mono text-[13px] font-semibold" x-text="c.id"></span>
+                <span x-show="c.archived" class="shrink-0 font-mono text-[11px] text-muted" x-text="c.archived"></span>
+              </div>
+
+              <template x-if="c.descHTML">
+                <p class="mb-3 mt-1.5 line-clamp-2 text-[12.5px] leading-normal text-fg-2" x-html="c.descHTML"></p>
+              </template>
+              <template x-if="!c.descHTML">
+                <p class="mb-3 mt-2 rounded-lg border border-dashed border-line-strong bg-surface-2 px-2.5 py-1.5 text-[12px] italic leading-snug text-muted">План ещё не написан — готов к созданию предложения</p>
+              </template>
+
+              <div class="flex flex-wrap gap-1">
+                <template x-for="a in c.arts" :key="a.key">
+                  <span class="chip" :class="'chip-' + a.state" :data-tip="a.tip">
+                    <span x-show="a.state !== 'ready'" x-html="icon(a.state === 'complete' ? 'check' : 'lock')"></span>
+                    <span class="chip-label" x-text="a.label"></span>
+                    <span x-show="a.state === 'ready'" class="next">след.</span>
+                  </span>
+                </template>
+              </div>
+
+              <template x-if="c.total">
+                <div class="mt-3 border-t border-line pt-2.5">
+                  <div class="tabular mb-1.5 flex justify-between text-[12px] text-fg-2">
+                    <span x-text="`${c.done} из ${c.total} ${plural(c.total, ['задачи', 'задач', 'задач'])}`"></span>
+                    <span class="font-mono font-semibold" :class="c.pct === 100 ? 'text-success' : 'text-fg'" x-text="c.pct + '%'"></span>
+                  </div>
+                  <div class="h-1.5 overflow-hidden rounded-full bg-surface-3">
+                    <div class="h-full rounded-full transition-all duration-500" :class="c.pct === 100 ? 'bg-success' : 'bg-accent'" :style="{ width: c.pct + '%' }"></div>
+                  </div>
+                </div>
+              </template>
+            </article>
+          </template>
+
+          <div x-show="!colItems(col.key).length" class="rounded-[10px] border-[1.5px] border-dashed border-line px-3 py-5 text-center text-[12.5px] text-muted"
+            x-text="q ? 'Ничего не найдено' : 'Нет изменений'"></div>
+        </div>
+      </section>
+    </template>
+  </div>
+</main>
+
+<!-- ============================ ЭКРАН 3: СПЕЦИФИКАЦИИ ============================ -->
+<main x-show="view === 'specs'" x-cloak class="grid md:min-h-[calc(100vh-56px)] md:grid-cols-[300px_1fr]">
+  <aside class="scroll-thin border-b border-line bg-col p-3 md:sticky md:top-14 md:h-[calc(100vh-56px)] md:overflow-y-auto md:border-b-0 md:border-r">
+    <div class="mb-2.5 flex items-center justify-between px-1.5 pt-1">
+      <h2 class="text-[13px] font-semibold">Спецификации проекта <span class="tabular font-normal text-muted" x-text="`(${specs.length})`"></span></h2>
+    </div>
+    <label class="mb-2.5 flex h-8 items-center gap-2 rounded-lg border border-line bg-surface px-2.5 text-muted focus-within:border-accent/50">
+      <span x-html="icon('filter', 'h-3.5 w-3.5')"></span>
+      <input x-model="specFilter" type="text" placeholder="Фильтр…" class="min-w-0 flex-1 bg-transparent text-[12.5px] text-fg outline-none placeholder:text-muted">
+    </label>
+    <div class="scroll-thin flex gap-1.5 overflow-x-auto md:block">
+      <template x-for="s in filteredSpecs" :key="s.cap">
+        <button type="button" @click="activeSpec = s.cap; window.scrollTo({ top: 0 })"
+          class="relative block shrink-0 rounded-lg border px-2.5 py-2 text-left transition md:mb-0.5 md:w-full"
+          :class="activeSpec === s.cap ? 'border-line bg-surface shadow-card' : 'border-line md:border-transparent hover:bg-surface-2'">
+          <span x-show="activeSpec === s.cap" class="absolute -left-3 bottom-2 top-2 hidden w-[3px] rounded-r bg-accent md:block"></span>
+          <div class="font-mono text-[12.5px] font-medium" x-text="s.cap"></div>
+          <div class="tabular mt-0.5 text-[11.5px] text-muted" x-text="`${s.reqCount} треб. · ${s.scnCount} сцен.`"></div>
+        </button>
+      </template>
+      <div x-show="!filteredSpecs.length" class="px-2 py-4 text-center text-[12.5px] text-muted">Ничего не найдено</div>
+    </div>
+  </aside>
+
+  <article class="min-w-0 px-4 pb-16 pt-5 md:px-10 md:pt-7">
+    <template x-if="spec">
+      <div class="mx-auto max-w-[860px]">
+        <div class="mb-6">
+          <div class="font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-muted">Спецификация</div>
+          <h1 class="mb-1.5 mt-1 break-all font-mono text-[22px] font-semibold tracking-tight md:text-[24px]" x-text="spec.cap"></h1>
+          <div class="flex items-center gap-1.5 font-mono text-[12px] text-muted">
+            <span x-html="icon('file', 'h-3.5 w-3.5')"></span>
+            <span class="break-all" x-text="`openspec/specs/${spec.cap}/spec.md`"></span>
+          </div>
+          <div class="tabular mt-3 flex gap-4 text-[12.5px] text-fg-2">
+            <span><b class="text-fg" x-text="spec.reqCount"></b> <span x-text="plural(spec.reqCount, ['требование', 'требования', 'требований'])"></span></span>
+            <span><b class="text-fg" x-text="spec.scnCount"></b> <span x-text="plural(spec.scnCount, ['сценарий', 'сценария', 'сценариев'])"></span></span>
+          </div>
+          <nav class="mt-4 flex flex-wrap gap-1.5 border-t border-line pt-3.5" aria-label="Оглавление">
+            <template x-for="(r, i) in spec.reqs" :key="i">
+              <a :href="`#r-${i + 1}`" @click.prevent="document.getElementById(`r-${i + 1}`).scrollIntoView({ behavior: 'smooth' })"
+                class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 text-[12px] text-fg-2 transition hover:border-accent/45 hover:text-fg">
+                <span class="font-mono text-[10.5px] font-bold text-accent" x-text="`R${i + 1}`"></span>
+                <span class="max-w-[260px] truncate" x-text="r"></span>
+              </a>
+            </template>
+          </nav>
+        </div>
+        <div x-html="spec.html"></div>
+      </div>
+    </template>
+  </article>
+</main>
+
+<!-- ============================ ЭКРАН 2: МОДАЛКА ИЗМЕНЕНИЯ ============================ -->
+<div x-show="open" x-cloak x-transition.opacity.duration.150ms
+  class="fixed inset-0 z-50 grid place-items-center bg-black/55 backdrop-blur-[3px] sm:p-6" @click.self="close()">
+  <template x-if="cur">
+    <div role="dialog" aria-modal="true" :aria-label="cur.id"
+      class="flex h-full w-full flex-col overflow-hidden bg-surface shadow-dialog sm:h-[min(88vh,920px)] sm:max-w-[1120px] sm:rounded-2xl sm:border sm:border-line">
+
+      <div class="border-b border-line px-4 pt-4 sm:px-6">
+        <div class="flex flex-wrap items-center gap-2.5">
+          <h2 class="mr-1 break-all font-mono text-[18px] font-semibold" x-text="cur.id"></h2>
+          <span class="inline-flex h-[22px] items-center gap-1.5 rounded-full border px-2 text-[11.5px] font-semibold"
+            :style="{ color: `rgb(var(--${cur.status}))`, background: `rgb(var(--${cur.status}) / .12)`, borderColor: `rgb(var(--${cur.status}) / .35)` }">
+            <span class="h-1.5 w-1.5 rounded-full bg-current"></span><span x-text="colTitle(cur.status)"></span>
+          </span>
+          <span class="inline-flex h-[22px] items-center rounded-full border border-line px-2 font-mono text-[11.5px] text-fg-2" data-tip="Схема артефактов">spec-driven</span>
+          <span x-show="cur.total" class="tabular inline-flex h-[22px] items-center gap-1.5 rounded-full border border-line px-2 text-[11.5px] text-fg-2">
+            <span x-html="icon('check', 'h-3 w-3')"></span><span x-text="`${cur.done}/${cur.total} задач`"></span>
+          </span>
+          <span x-show="cur.archived" class="inline-flex h-[22px] items-center rounded-full border border-line px-2 font-mono text-[11.5px] text-muted" x-text="`архив · ${cur.archived}`"></span>
+          <button type="button" @click="close()" class="ml-auto inline-flex h-8 items-center gap-2 rounded-lg border border-line bg-surface px-2 text-fg-2 transition hover:border-line-strong hover:text-fg" aria-label="Закрыть">
+            <kbd class="hidden font-mono text-[11px] text-muted sm:inline">Esc</kbd><span x-html="icon('x')"></span>
+          </button>
+        </div>
+
+        <!-- Цепочка артефактов = вкладки -->
+        <div class="scroll-thin -mx-1 mt-3.5 flex items-stretch overflow-x-auto" role="tablist">
+          <template x-for="(a, i) in cur.arts" :key="a.key">
+            <div class="flex shrink-0 items-stretch">
+              <button type="button" role="tab" :aria-selected="tab === a.key" @click="setTab(a.key)" :data-tip="a.tip"
+                class="flex items-center gap-2.5 whitespace-nowrap border-b-2 px-2.5 pb-3 pt-2 transition"
+                :class="tab === a.key ? 'border-accent text-fg' : 'border-transparent text-fg-2 hover:text-fg'">
+                <span class="grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full font-mono text-[11px] font-bold"
+                  :class="{ 'bg-accent text-surface': a.state === 'complete', 'border-[1.5px] border-dashed border-accent/60 text-accent': a.state === 'ready', 'bg-surface-3 text-muted': a.state === 'blocked' }">
+                  <span x-show="a.state === 'complete'" x-html="icon('check', 'h-3 w-3 stroke-[3]')"></span>
+                  <span x-show="a.state === 'ready'" x-text="i + 1"></span>
+                  <span x-show="a.state === 'blocked'" x-html="icon('lock', 'h-3 w-3')"></span>
+                </span>
+                <span class="text-left leading-tight">
+                  <span class="block text-[13px] font-semibold" x-text="a.label"></span>
+                  <span class="hidden font-mono text-[11px] text-muted sm:block" x-text="a.file"></span>
+                </span>
+              </button>
+              <span x-show="i < cur.arts.length - 1" class="self-center px-1 pb-1 text-muted/60" x-html="icon('arrow', 'h-3.5 w-3.5')"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div x-ref="dlgBody" class="scroll-thin flex-1 overflow-y-auto px-4 pb-10 pt-5 sm:px-7 sm:pt-6">
+        <!-- Переключатель файлов дельта-спецификаций -->
+        <template x-if="tab === 'specs' && cur.specFiles.length > 1">
+          <div class="mb-4 inline-flex max-w-full flex-wrap gap-1 rounded-[10px] border border-line bg-surface-2 p-[3px]">
+            <template x-for="(f, i) in cur.specFiles" :key="f.cap">
+              <button type="button" @click="specFile = i"
+                class="rounded-[7px] px-2.5 py-1 font-mono text-[12px] transition"
+                :class="specFile === i ? 'bg-surface text-fg shadow-card ring-1 ring-line' : 'text-fg-2 hover:text-fg'"
+                x-text="`${f.cap}/spec.md`"></button>
+            </template>
+          </div>
+        </template>
+        <div x-html="tabHTML"></div>
+      </div>
+    </div>
+  </template>
+</div>
+
+<!-- ============================ ЛОГИКА ============================ -->
+<script>
+  const COLS = [
+    { key: 'draft', title: 'В проекте', sub: 'Планирование' },
+    { key: 'todo', title: 'К выполнению', sub: 'Ждёт старта' },
+    { key: 'progress', title: 'В работе', sub: 'Идёт кодинг' },
+    { key: 'done', title: 'Готово', sub: '100% задач · ждёт архивации' },
+    { key: 'archive', title: 'Архив', sub: 'Завершено' },
+  ];
+
+  // Схема spec-driven: порядок и зависимости артефактов
+  const ART = [
+    { key: 'proposal', label: 'Предложение', file: 'proposal.md', deps: [] },
+    { key: 'design', label: 'Дизайн', file: 'design.md', deps: ['proposal'] },
+    { key: 'specs', label: 'Спецификации', file: 'specs/', deps: ['proposal'] },
+    { key: 'tasks', label: 'Задачи', file: 'tasks.md', deps: ['design', 'specs'] },
+  ];
+
+  // ---------- Иконки ----------
+  const ICONS = {
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    archive: '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
+    board: '<rect x="3" y="4" width="5" height="16" rx="1.2"/><rect x="10" y="4" width="5" height="10" rx="1.2"/><rect x="17" y="4" width="4" height="13" rx="1.2"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/>',
+    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    filter: '<path d="M3 5h18l-7 8v6l-4 1v-7z"/>',
+    alert: '<path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01"/>',
+    play: '<path d="m7 5 11 7-11 7z"/>',
+    pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+    power: '<path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/>',
+  };
+  const icon = (n, cls = 'h-4 w-4') =>
+    `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+
+  const plural = (n, f) => {
+    const a = Math.abs(n) % 100, b = a % 10;
+    return a > 10 && a < 20 ? f[2] : b === 1 ? f[0] : b >= 2 && b <= 4 ? f[1] : f[2];
+  };
+
+  // ---------- Мини-рендер Markdown ----------
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const KW = /\b(MUST NOT|SHALL NOT|SHOULD NOT|SHALL|MUST|SHOULD|MAY)\b/g;
+
+  function inline(s) {
+    return s.split(/(`[^`]+`)/g).map((part) => {
+      if (part.length > 1 && part[0] === '`' && part.at(-1) === '`') return `<code>${esc(part.slice(1, -1))}</code>`;
+      return esc(part)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+        .replace(KW, (m) => `<span class="kw${/NOT/.test(m) ? ' kw-not' : /SHOULD|MAY/.test(m) ? ' kw-soft' : ''}">${m}</span>`);
+    }).join('');
+  }
+
+  const CHECK_SVG = icon('check');
+
+  function md(src) {
+    const L = src.split('\n'), out = [];
+    let i = 0, para = [];
+    const flush = () => { if (para.length) { out.push(`<p>${inline(para.join(' '))}</p>`); para = []; } };
+    const isList = (l) => /^\s*([-*]|\d+\.)\s+/.test(l);
+    while (i < L.length) {
+      const l = L[i];
+      let m;
+      if (/^```/.test(l)) {
+        flush();
+        const lang = l.slice(3).trim(), buf = [];
+        i++;
+        while (i < L.length && !/^```/.test(L[i])) buf.push(L[i++]);
+        i++;
+        out.push(`<pre${lang ? ` data-lang="${esc(lang)}"` : ''}><code>${esc(buf.join('\n'))}</code></pre>`);
+        continue;
+      }
+      if ((m = l.match(/^(#{1,6})\s+(.*)/))) { flush(); const n = m[1].length; out.push(`<h${n}>${inline(m[2])}</h${n}>`); i++; continue; }
+      if (/^\s*\|/.test(l) && L[i + 1] && /^\s*\|?\s*:?-{2,}/.test(L[i + 1])) {
+        flush();
+        const row = (r) => r.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+        const head = row(l), rows = [];
+        i += 2;
+        while (i < L.length && /^\s*\|/.test(L[i])) rows.push(row(L[i++]));
+        out.push(`<div class="table-wrap"><table><thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join('')}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`);
+        continue;
+      }
+      if (isList(l)) {
+        flush();
+        const tag = /^\s*\d+\./.test(l) ? 'ol' : 'ul', items = [];
+        while (i < L.length && isList(L[i])) {
+          const mm = L[i].match(/^(\s*)(?:[-*]|\d+\.)\s+(?:\[( |x|X)\]\s+)?(.*)/);
+          const sub = mm[1].length >= 2 ? ' sub' : '';
+          items.push(mm[2] !== undefined
+            ? `<li class="task${sub}"><span class="cb${mm[2] !== ' ' ? ' on' : ''}">${mm[2] !== ' ' ? CHECK_SVG : ''}</span><span>${inline(mm[3])}</span></li>`
+            : `<li class="${sub.trim()}">${inline(mm[3])}</li>`);
+          i++;
+        }
+        out.push(`<${tag}>${items.join('')}</${tag}>`);
+        continue;
+      }
+      if (/^>\s?/.test(l)) {
+        flush();
+        const buf = [];
+        while (i < L.length && /^>\s?/.test(L[i])) buf.push(L[i++].replace(/^>\s?/, ''));
+        out.push(`<blockquote>${md(buf.join('\n'))}</blockquote>`);
+        continue;
+      }
+      if (/^-{3,}\s*$/.test(l)) { flush(); out.push('<hr>'); i++; continue; }
+      if (!l.trim()) { flush(); i++; continue; }
+      para.push(l.trim());
+      i++;
+    }
+    flush();
+    return out.join('');
+  }
+
+  // ---------- Разбор структуры спецификации OpenSpec ----------
+  function parseSpec(src) {
+    const res = { purpose: [], sections: [] };
+    let sec = null, req = null, sc = null, inPurpose = false, inFence = false;
+    const target = () => sc ? sc.lines : req ? req.lines : inPurpose ? res.purpose : sec ? sec.lines : res.purpose;
+    for (const l of src.split('\n')) {
+      if (/^```/.test(l)) inFence = !inFence;
+      let m;
+      if (!inFence) {
+        if (/^#\s/.test(l)) continue;
+        if ((m = l.match(/^##\s+(.*)/))) {
+          req = sc = null;
+          inPurpose = /purpose|назначение/i.test(m[1]);
+          if (!inPurpose) { sec = { name: m[1].trim(), lines: [], reqs: [] }; res.sections.push(sec); }
+          continue;
+        }
+        if ((m = l.match(/^###\s+Requirement:\s*(.*)/i))) {
+          if (!sec) { sec = { name: 'Requirements', lines: [], reqs: [] }; res.sections.push(sec); }
+          sc = null; inPurpose = false;
+          req = { title: m[1].trim(), lines: [], scenarios: [] };
+          sec.reqs.push(req);
+          continue;
+        }
+        if ((m = l.match(/^####\s+Scenario:\s*(.*)/i)) && req) {
+          sc = { title: m[1].trim(), lines: [] };
+          req.scenarios.push(sc);
+          continue;
+        }
+      }
+      target().push(l);
+    }
+    res.reqs = res.sections.flatMap((s) => s.reqs);
+    res.scnCount = res.reqs.reduce((n, r) => n + r.scenarios.length, 0);
+    return res;
+  }
+
+  const SECTION = {
+    requirements: ['', 'Требования'],
+    'added requirements': ['added', 'Добавленные требования'],
+    'modified requirements': ['modified', 'Изменённые требования'],
+    'removed requirements': ['removed', 'Удалённые требования'],
+  };
+  const STEP_KW = { WHEN: 'when', GIVEN: 'when', 'КОГДА': 'when', 'ДАНО': 'when', THEN: 'then', 'ТОГДА': 'then', AND: 'and', 'И': 'and' };
+  const STEP_RU = { when: 'КОГДА', then: 'ТОГДА', and: 'И' };
+
+  function renderScenarioBody(lines) {
+    const out = [];
+    let buf = [];
+    const flush = () => { if (buf.join('').trim()) out.push(`<div class="md text-[13px]">${md(buf.join('\n'))}</div>`); buf = []; };
+    for (const l of lines) {
+      const m = l.match(/^\s*[-*]\s+\*\*([A-ZА-ЯЁ]+)\*\*:?\s*(.*)/);
+      if (m && STEP_KW[m[1]]) {
+        flush();
+        const k = STEP_KW[m[1]];
+        out.push(`<div class="step"><span class="sk sk-${k}" data-tip="${STEP_RU[k]}">${m[1]}</span><div>${inline(m[2])}</div></div>`);
+      } else buf.push(l);
+    }
+    flush();
+    return out.join('');
+  }
+
+  function renderSpecBody(p, idPrefix) {
+    let n = 0;
+    let html = '';
+    if (p.purpose.join('').trim()) {
+      html += `<section class="purpose"><div class="purpose-label">Назначение · Purpose</div><div class="md">${md(p.purpose.join('\n'))}</div></section>`;
+    }
+    for (const s of p.sections) {
+      const [kind, label] = SECTION[s.name.toLowerCase()] || ['', s.name];
+      html += `<div class="sec-head">${kind ? `<span class="delta delta-${kind}">${kind.toUpperCase()}</span>` : ''}${esc(label)}</div>`;
+      if (s.lines.join('').trim()) html += `<div class="md mb-3">${md(s.lines.join('\n'))}</div>`;
+      for (const r of s.reqs) {
+        n++;
+        html += `<section class="req"${idPrefix ? ` id="${idPrefix}${n}"` : ''}>
+          <header class="req-head"><span class="req-num">R${n}</span><h3>${inline(r.title)}</h3>
+            <span class="req-tag">${r.scenarios.length} сцен.</span></header>
+          <div class="req-body"><div class="md">${md(r.lines.join('\n'))}</div></div>
+          ${r.scenarios.map((sc) => `<div class="scn">
+            <div class="scn-title">${icon('play')}Сценарий: <b>${inline(sc.title)}</b></div>
+            <div class="steps">${renderScenarioBody(sc.lines)}</div></div>`).join('')}
+        </section>`;
+      }
+    }
+    return html;
+  }
+
+  // ---------- Задачи ----------
+  function parseTasks(src) {
+    const groups = [];
+    let g = null;
+    for (const l of src.split('\n')) {
+      let m;
+      if ((m = l.match(/^##\s+(.*)/))) { g = { title: m[1], items: [] }; groups.push(g); }
+      else if ((m = l.match(/^\s*[-*]\s+\[( |x|X)\]\s+(.*)/))) {
+        if (!g) { g = { title: 'Задачи', items: [] }; groups.push(g); }
+        const nm = m[2].match(/^(\d+(?:\.\d+)*)\s+(.*)/);
+        g.items.push({ done: m[1] !== ' ', num: nm ? nm[1] : '', text: nm ? nm[2] : m[2] });
+      }
+    }
+    return groups;
+  }
+
+  function renderTasks(c) {
+    const head = `<div class="mb-6 flex max-w-[820px] items-center gap-4 rounded-xl border border-line bg-surface-2 px-4 py-3.5">
+      <div class="tabular font-mono text-[26px] font-semibold leading-none ${c.pct === 100 ? 'text-success' : 'text-fg'}">${c.pct}%</div>
+      <div class="flex-1">
+        <div class="tabular mb-1.5 text-[12.5px] text-fg-2">Выполнено <b class="text-fg">${c.done} из ${c.total}</b> ${plural(c.total, ['задачи', 'задач', 'задач'])}</div>
+        <div class="h-1.5 overflow-hidden rounded-full bg-surface-3"><div class="h-full rounded-full ${c.pct === 100 ? 'bg-success' : 'bg-accent'}" style="width:${c.pct}%"></div></div>
+      </div></div>`;
+    const groups = c.groups.map((g) => {
+      const d = g.items.filter((t) => t.done).length;
+      return `<section class="mb-5 max-w-[820px]">
+        <div class="mb-1 flex items-center justify-between gap-3 border-b border-line pb-2">
+          <h3 class="text-[14.5px] font-semibold">${inline(g.title)}</h3>
+          <span class="tabular font-mono text-[11.5px] ${d === g.items.length ? 'text-success' : 'text-muted'}">${d}/${g.items.length}</span>
+        </div>
+        ${g.items.map((t) => `<div class="flex items-start gap-3 rounded-lg px-2.5 py-2 hover:bg-surface-2">
+          <span class="cb${t.done ? ' on' : ''}">${t.done ? CHECK_SVG : ''}</span>
+          <span class="tabular mt-px min-w-[28px] font-mono text-[12px] text-muted">${t.num}</span>
+          <span class="md flex-1 text-[13.5px] leading-[1.55] ${t.done ? '!text-muted' : '!text-fg'}">${inline(t.text)}</span>
+        </div>`).join('')}
+      </section>`;
+    }).join('');
+    return head + groups;
+  }
+
+  // ---------- Модель изменения ----------
+  function firstParagraph(src) {
+    if (!src) return null;
+    const lines = [];
+    for (const l of src.split('\n')) {
+      if (/^#/.test(l)) { if (lines.length) break; continue; }
+      if (!l.trim()) { if (lines.length) break; continue; }
+      if (/^\s*[-*|>]/.test(l)) { if (lines.length) break; continue; }
+      lines.push(l.trim());
+    }
+    return lines.join(' ') || null;
+  }
+
+  function buildChange(c) {
+    const files = c.files;
+    const specFiles = c.specFiles;
+    const has = { proposal: !!files.proposal, design: !!files.design, specs: specFiles.length > 0, tasks: !!files.tasks };
+    const arts = ART.map((a) => {
+      if (has[a.key]) return { ...a, state: 'complete', tip: 'Готово' };
+      const waits = a.deps.filter((d) => !has[d]).map((d) => ART.find((x) => x.key === d).label);
+      return waits.length
+        ? { ...a, state: 'blocked', waits, tip: `Ожидает: ${waits.join(', ')}` }
+        : { ...a, state: 'ready', tip: 'Готов к написанию' };
+    });
+    const groups = files.tasks ? parseTasks(files.tasks) : [];
+    const all = groups.flatMap((g) => g.items);
+    const total = all.length, done = all.filter((t) => t.done).length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    const status = c.archived ? 'archive' : !files.tasks ? 'draft' : done === 0 ? 'todo' : done < total ? 'progress' : 'done';
+    const desc = firstParagraph(files.proposal);
+    const hay = [c.id, files.proposal, files.design, files.tasks, ...specFiles.map((s) => s.src)].join('\n').toLowerCase();
+    return { ...c, files, specFiles, arts, groups, total, done, pct, status, descHTML: desc ? inline(desc) : '', hay };
+  }
+
+  function buildSpec(s) {
+    const p = parseSpec(s.src);
+    return { cap: s.cap, src: s.src, hay: (s.cap + '\n' + s.src).toLowerCase(), reqCount: p.reqs.length, scnCount: p.scnCount, reqs: p.reqs.map((r) => r.title), html: renderSpecBody(p, 'r-') };
+  }
+
+  function emptyState(a) {
+    const ready = a.state === 'ready';
+    return `<div class="empty">
+      <div class="empty-ico">${icon(ready ? 'pen' : 'lock', 'h-5 w-5')}</div>
+      <h3>${ready ? 'Готов к написанию' : 'Документ ещё не создан'}</h3>
+      <p>${ready
+        ? `Все зависимости готовы — агент создаст <code class="inline-code">${a.file}</code> на следующем шаге. Попросите продолжить в терминале: <code class="inline-code">/opsx:propose</code>`
+        : `Ожидает: ${a.waits.join(', ')}. Этот артефакт станет доступен, когда будут написаны предыдущие.`}</p>
+    </div>`;
+  }
+
+  // ---------- Alpine-приложение ----------
+  let events = null;
+
+  function app() {
+    return {
+      view: 'board',
+      showArchive: false,
+      q: '',
+      live: false,
+      stopped: false,
+      repoName: '',
+      bundleVersion: '',
+      dark: document.documentElement.classList.contains('dark'),
+      changes: [],
+      specs: [],
+      activeSpec: '',
+      specFilter: '',
+      open: null,
+      tab: 'proposal',
+      specFile: 0,
+
+      icon, plural,
+
+      async init() {
+        await this.loadState();
+        events = new EventSource('/api/events');
+        events.addEventListener('open', () => { this.live = true; });
+        events.addEventListener('error', () => { this.live = false; });
+        events.addEventListener('update', () => this.loadState());
+      },
+      async loadState() {
+        try {
+          const res = await fetch('/api/state');
+          if (!res.ok) return;
+          const data = await res.json();
+          this.repoName = data.repoName;
+          this.bundleVersion = data.bundleVersion;
+          this.changes = data.changes.map(buildChange);
+          this.specs = data.specs.map(buildSpec);
+        } catch (e) {
+          this.live = false;
+        }
+      },
+      async shutdownServer() {
+        if (!confirm('Остановить сервер OpenSpec RU?')) return;
+        if (events) events.close();
+        this.live = false;
+        this.stopped = true;
+        try { await fetch('/api/shutdown', { method: 'POST' }); } catch (e) {}
+      },
+
+      get active() { return this.changes.filter((c) => c.status !== 'archive'); },
+      get archived() { return this.changes.filter((c) => c.status === 'archive'); },
+      get visibleCols() { return COLS.filter((c) => c.key !== 'archive' || this.showArchive); },
+      get cur() { return this.changes.find((c) => c.id === this.open); },
+      get spec() { return this.specs.find((s) => s.cap === this.activeSpec) || this.filteredSpecs[0]; },
+      get needle() { return this.q.trim().toLowerCase(); },
+
+      get boardSummary() {
+        const by = (k) => this.changes.filter((c) => c.status === k).length;
+        return `${this.active.length} активных · ${by('progress')} в работе · ${by('done')} ждёт архивации`;
+      },
+      get filteredSpecs() {
+        const f = this.specFilter.trim().toLowerCase();
+        return this.specs.filter((s) => (!this.needle || s.hay.includes(this.needle)) && (!f || s.cap.includes(f)));
+      },
+      colItems(key) {
+        return this.changes.filter((c) => c.status === key && (!this.needle || c.hay.includes(this.needle)));
+      },
+      colTitle(key) { return COLS.find((c) => c.key === key).title; },
+
+      openChange(id) {
+        this.open = id;
+        this.tab = 'proposal';
+        this.specFile = 0;
+        document.body.style.overflow = 'hidden';
+      },
+      close() {
+        this.open = null;
+        document.body.style.overflow = '';
+      },
+      setTab(k) {
+        this.tab = k;
+        this.specFile = 0;
+        this.$nextTick(() => this.$refs.dlgBody && (this.$refs.dlgBody.scrollTop = 0));
+      },
+      get tabHTML() {
+        const c = this.cur;
+        if (!c) return '';
+        const a = c.arts.find((x) => x.key === this.tab);
+        const path = (p) => `<div class="mb-5 flex items-center gap-1.5 font-mono text-[12px] text-muted">${icon('file', 'h-3.5 w-3.5')}<span class="break-all">${c.dirPath}/${p}</span></div>`;
+        if (this.tab === 'specs') {
+          const f = c.specFiles[this.specFile];
+          return f ? path(`specs/${f.cap}/spec.md`) + `<div class="max-w-[860px]">${renderSpecBody(parseSpec(f.src), '')}</div>` : emptyState(a);
+        }
+        const src = c.files[this.tab];
+        if (!src) return emptyState(a);
+        if (this.tab === 'tasks') return path('tasks.md') + renderTasks(c);
+        return path(a.file) + `<div class="md">${md(src)}</div>`;
+      },
+
+      toggleTheme() {
+        this.dark = !this.dark;
+        document.documentElement.classList.toggle('dark', this.dark);
+        try { localStorage.setItem('osru-theme', this.dark ? 'dark' : 'light'); } catch (e) {}
+      },
+      onKey(e) {
+        const typing = /INPUT|TEXTAREA/.test(document.activeElement?.tagName);
+        if (e.key === '/' && !typing) { e.preventDefault(); this.$refs.search.focus(); }
+        else if (e.key === 'Escape') {
+          if (this.open) this.close();
+          else if (typing) document.activeElement.blur();
+        }
+      },
+    };
+  }
+</script>
+</body>
+</html>

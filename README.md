@@ -59,6 +59,24 @@ openspec update
 npx github:OnePro/openspec_ru apply
 ```
 
+### 4. Веб-панель изменений и спецификаций (`start web`)
+
+В корне проекта с каталогом `openspec/` запустите локальную панель (только чтение, обновляется автоматически при изменении файлов):
+
+```sh
+npx github:OnePro/openspec_ru start web [--port 3000]
+# без открытия браузера:
+npx github:OnePro/openspec_ru start web --no-open
+```
+
+Панель откроется на `http://localhost:3000` (если порт занят — на следующем из диапазона до 3015). Остановить её можно кнопкой выключения в шапке, `Ctrl+C` или командой:
+
+```sh
+npx github:OnePro/openspec_ru stop web
+```
+
+Алиас `ui` (`npx github:OnePro/openspec_ru ui`, остановка — `ui --stop`) работает так же. В каталоге без `openspec/` запуск блокируется с кодом `1`.
+
 ### Поддерживаемые инструменты (топ-5)
 
 | Инструмент | ID | Skills | Slash-команды |
