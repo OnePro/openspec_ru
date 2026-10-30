@@ -2,6 +2,13 @@
 
 Русскоязычный перевод [OpenSpec](https://github.com/Fission-AI/OpenSpec) — AI-скиллов, slash-команд, схем артефактов и встроенной веб-панели спецификаций, — привязанный к конкретной версии оригинала (`v1.15.0`), с автоматическим обнаружением дрейфа апстрима.
 
+<p align="center">
+  <img src="assets/openspec-ru-ui-kanban.png" alt="OpenSpec RU — Доска изменений (Канбан)" width="100%">
+</p>
+<p align="center">
+  <img src="assets/openspec-ru-ui-specs.png" alt="OpenSpec RU — Просмотр спецификаций проекта" width="100%">
+</p>
+
 ## Быстрый старт для пользователей
 
 Работает на **Windows, macOS и Linux**. При первом запуске через `npx` утилита автоматически устанавливает команду `openspec-ru` в ваш пользовательский `PATH` (`~/.openspec-ru/runtime`), поэтому дальше можно вызывать `openspec-ru` напрямую без `npx`.
