@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -405,6 +406,25 @@ test('4.3 E2E негативный 5: расхождение версии OpenSp
       bundleTag: 'v1.15.0',
     });
     assert.match(res.report, /Предупреждение: версия установленного OpenSpec CLI \(v1\.14\.0\) отличается от версии бандла \(v1\.15\.0\)/);
+  });
+});
+
+test('2.1 unit: совместимость по MAJOR.MINOR — openspec 1.15.2 и бандл 1.15.1 не дают предупреждения', () => {
+  withTempDir((dir) => {
+    const customBundle = resolve(dir, 'bundle');
+    cpSync(DEFAULT_BUNDLE_DIR, customBundle, { recursive: true });
+    const meta = readBundleMeta();
+    writeFileSync(
+      resolve(customBundle, 'bundle-meta.json'),
+      JSON.stringify({ ...meta, openspecVersion: '1.15.1', bundleVersion: 'v1.15.1' }, null, 2),
+    );
+    writeFixtureFile(dir, '.claude/skills/openspec-explore/SKILL.md', '---\nname: openspec-explore\n---\nEnglish skill\n');
+
+    const res = applyRuPatch(dir, { bundleDir: customBundle, openspecVersion: '1.15.2' });
+    assert.equal(res.ok, true);
+    assert.equal(res.versionMismatch, null);
+    assert.deepEqual(res.warnings, []);
+    assert.doesNotMatch(res.report, /Предупреждение: версия/);
   });
 });
 

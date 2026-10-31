@@ -128,6 +128,15 @@ function isDir(absPath) {
   }
 }
 
+/**
+ * Извлекает `MAJOR.MINOR` из версии (`'v1.15.2'` → `'1.15'`, `'1.15.0'` → `'1.15'`).
+ * Возвращает null, если версия не похожа на `X.Y[.Z]`.
+ */
+export function majorMinor(ver) {
+  const m = String(ver ?? '').replace(/^v/, '').match(/^(\d+)\.(\d+)/);
+  return m ? `${m[1]}.${m[2]}` : null;
+}
+
 /** Читает метаданные бандла dist-ru/bundle-meta.json. */
 export function readBundleMeta(bundleDir = DEFAULT_BUNDLE_DIR) {
   const metaPath = resolve(bundleDir, 'bundle-meta.json');
@@ -483,7 +492,7 @@ export function applyRuPatch(projectDir, options = {}) {
   const messages = [];
   let versionMismatch = null;
 
-  if (installedVersion && installedVersion.replace(/^v/, '') !== expectedVersion) {
+  if (installedVersion && majorMinor(installedVersion) !== majorMinor(expectedVersion)) {
     const cleanInstalled = installedVersion.replace(/^v/, '');
     versionMismatch = {
       installed: cleanInstalled,

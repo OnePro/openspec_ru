@@ -202,7 +202,9 @@ async function renderTools(upstream) {
   // Скилл и команда веб-панели (openspec-ui, ui) — собственные, не из апстрима
   const uiFiles = writeUiArtifacts(DIST_RU);
 
+  const rootPkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
   const meta = {
+    bundleVersion: 'v' + rootPkg.version,
     upstream: { repo: upstream.repo, tag: upstream.tag, commit: upstream.commit },
     openspecVersion: version,
     tools: TOOL_LAYOUTS.map((t) => ({ ...t })),

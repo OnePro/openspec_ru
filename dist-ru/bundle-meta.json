@@ -1,4 +1,5 @@
 {
+  "bundleVersion": "v1.15.0",
   "upstream": {
     "repo": "Fission-AI/OpenSpec",
     "tag": "v1.15.0",

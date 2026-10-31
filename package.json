@@ -1,6 +1,6 @@
 {
   "name": "openspec-ru",
-  "version": "0.1.0",
+  "version": "1.15.0",
   "description": "Русскоязычный перевод OpenSpec (Fission-AI/OpenSpec) с трекингом дрейфа апстрима",
   "type": "module",
   "bin": {
@@ -21,6 +21,7 @@
     "validate:ru": "node tools/validate-translation.mjs --all",
     "lint:glossary": "node tools/validate-translation.mjs --lint ru",
     "build:ru": "node tools/build-ru.mjs",
+    "release:check": "node tools/release-check.mjs",
     "test": "node --test \"tools/**/*.test.mjs\""
   }
 }

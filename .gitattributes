@@ -1,0 +1,15 @@
+# Все текстовые файлы хранятся и извлекаются с LF на всех ОС (Windows, macOS, Linux),
+# чтобы shebang (#!/usr/bin/env node), SKILL.md и хеши файлов были побайтово идентичны.
+* text=auto eol=lf
+
+# Скрипты командной оболочки Windows требуют CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Бинарные изображения
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
