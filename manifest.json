@@ -485,119 +485,119 @@
       "en": "website/app/api/search/route.ts",
       "ru": "ru/website-strings/app/api/search/route.ts",
       "base_blob_sha": "aaaff7ffd1d996fb277538555c815044c3746483",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/app/docs/[[...slug]]/page.tsx",
       "ru": "ru/website-strings/app/docs/[[...slug]]/page.tsx",
       "base_blob_sha": "a8be2bff8f406a9abbe372887b4150099e458b92",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/app/docs/layout.tsx",
       "ru": "ru/website-strings/app/docs/layout.tsx",
       "base_blob_sha": "056328f9a6d70440b0eb15e38ac01fc60acbadc1",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/app/layout.tsx",
       "ru": "ru/website-strings/app/layout.tsx",
       "base_blob_sha": "c8e5172f95610f329a0c90109704a95b48a8cb59",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/app/llms-full.txt/route.ts",
       "ru": "ru/website-strings/app/llms-full.txt/route.ts",
       "base_blob_sha": "d494d2cbb683c3937f1cd37f3cb27afd801924a0",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/app/llms.mdx/docs/[[...slug]]/route.ts",
       "ru": "ru/website-strings/app/llms.mdx/docs/[[...slug]]/route.ts",
       "base_blob_sha": "012e877cdae520b63d3ce085f07571e3ea59e57d",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/app/llms.txt/route.ts",
       "ru": "ru/website-strings/app/llms.txt/route.ts",
       "base_blob_sha": "6ec54757d94e51ddcd25420bc2d3e14bd76dbf3b",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/app/og/docs/[...slug]/route.tsx",
       "ru": "ru/website-strings/app/og/docs/[...slug]/route.tsx",
       "base_blob_sha": "877166d34f37d6402a5998acbafb13197f7e7a57",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/app/page.tsx",
       "ru": "ru/website-strings/app/page.tsx",
       "base_blob_sha": "8dd5f32fd9cbc356ace04847dc2c581ab8f2a7e6",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/app/robots.ts",
       "ru": "ru/website-strings/app/robots.ts",
       "base_blob_sha": "b0a31af94f640c49c914d525b84233420f288d93",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/app/sitemap.ts",
       "ru": "ru/website-strings/app/sitemap.ts",
       "base_blob_sha": "83a2dc9b2e2ba56be040c59b6c8e2ccd434fa34b",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/lib/layout.shared.tsx",
       "ru": "ru/website-strings/lib/layout.shared.tsx",
       "base_blob_sha": "e854e2887020a0ccdf4f4685da8a28a992015fb9",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/lib/remark-faq.ts",
       "ru": "ru/website-strings/lib/remark-faq.ts",
       "base_blob_sha": "1fcb5ff12bcb7f0d6d29e0192f7a45689d3dae5a",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/lib/remark-file-steps.ts",
       "ru": "ru/website-strings/lib/remark-file-steps.ts",
       "base_blob_sha": "248986c2bbe6909c3c29732d7bfdf0efce62d544",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/lib/remark-gfm-alert.ts",
       "ru": "ru/website-strings/lib/remark-gfm-alert.ts",
       "base_blob_sha": "0d6bfd1875472ebef51de22f73681800286c5434",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/lib/shared.ts",
       "ru": "ru/website-strings/lib/shared.ts",
       "base_blob_sha": "06eb54098c2b4a2f598da84aa5af10033147854a",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     },
     {
       "en": "website/lib/source.ts",
       "ru": "ru/website-strings/lib/source.ts",
       "base_blob_sha": "19591939c6dc341fbae5cb9d7437ec24187459de",
-      "status": "pending",
+      "status": "reviewed",
       "area": "website"
     }
   ]

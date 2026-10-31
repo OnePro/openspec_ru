@@ -10,6 +10,7 @@ import {
   buildFreshPrompt,
   callLlm,
   llmConfigFromEnv,
+  runPostTranslation,
   translateWithRetry,
   unwrapFences,
 } from './translate.mjs';
@@ -170,4 +171,76 @@ test('callLlm: HTTP-ошибка пробрасывается без ключа 
     assert.ok(!err.message.includes('sekret'));
     return true;
   });
+});
+
+const WEBSITE_ENTRY = {
+  en: 'website/app/page.tsx',
+  ru: 'ru/website-strings/app/page.tsx',
+  base_blob_sha: 'a'.repeat(40),
+  status: 'machine',
+  area: 'website',
+};
+const WEBSITE_TREE = new Map([[WEBSITE_ENTRY.en, WEBSITE_ENTRY.base_blob_sha]]);
+const REVIEW_ENV = {
+  REVIEW_API_BASE: 'https://review.example',
+  REVIEW_API_KEY: 'review-key',
+  REVIEW_API_MODEL: 'advisor',
+};
+
+test('интеграция: advisor не настроен — гейт пройден, machine сохранён, ошибки нет', async () => {
+  const lines = [];
+  let gateCalls = 0;
+  const result = await runPostTranslation({
+    entry: { ...WEBSITE_ENTRY },
+    tree: WEBSITE_TREE,
+    enContent: 'export default () => <p>Change</p>;',
+    ruContent: 'export default () => <p>Изменение</p>;',
+    env: {},
+    gate: () => { gateCalls++; return []; },
+    log: { log: (line) => lines.push(line), error() {} },
+  });
+  assert.equal(gateCalls, 1);
+  assert.equal(result.status, 'machine');
+  assert.equal(result.deferred, true);
+  assert.equal(WEBSITE_ENTRY.status, 'machine');
+  assert.match(lines.join('\n'), /ревью отложено/);
+});
+
+test('интеграция: настроенный advisor pass вызывает mark reviewed после гейта', async () => {
+  const marked = [];
+  let gateCalls = 0;
+  const result = await runPostTranslation({
+    entry: { ...WEBSITE_ENTRY },
+    tree: WEBSITE_TREE,
+    enContent: 'export default () => <p>Change</p>;',
+    ruContent: 'export default () => <p>Изменение</p>;',
+    env: REVIEW_ENV,
+    gate: () => { gateCalls++; return []; },
+    callApi: async () => '{"verdict":"pass","issues":[]}',
+    mark: (path) => marked.push(path),
+    glossaryMd: 'Глоссарий',
+    styleGuideMd: 'Стайлгайд',
+    log: { log() {}, error() {} },
+  });
+  assert.equal(gateCalls, 1);
+  assert.equal(result.status, 'reviewed');
+  assert.deepEqual(marked, [WEBSITE_ENTRY.ru]);
+});
+
+test('интеграция: ошибка синтаксического гейта блокирует advisor и reviewed', async () => {
+  let advisorCalls = 0;
+  let marks = 0;
+  await assert.rejects(() => runPostTranslation({
+    entry: { ...WEBSITE_ENTRY },
+    tree: WEBSITE_TREE,
+    enContent: 'export default () => <p>Change</p>;',
+    ruContent: 'export default () => <p>Изменение</p>;',
+    env: REVIEW_ENV,
+    gate: () => [{ category: 1, messageText: 'Сломанный JSX' }],
+    callApi: async () => { advisorCalls++; return '{"verdict":"pass","issues":[]}'; },
+    mark: () => { marks++; },
+    log: { log() {}, error() {} },
+  }), /статус machine сохранён, ревью не выполнялось/);
+  assert.equal(advisorCalls, 0);
+  assert.equal(marks, 0);
 });
