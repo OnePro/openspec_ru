@@ -6,8 +6,8 @@
 
 Версия имеет вид `MAJOR.MINOR.PATCH`:
 
-- `MAJOR.MINOR` всегда совпадает с базовой версией оригинального OpenSpec (`Fission-AI/OpenSpec`, сейчас `1.15`, тег `v1.15.0` в `upstream.json`).
-- `PATCH` (`1.15.0`, `1.15.1`, … `1.15.9`) отражает собственные релизы `openspec_ru` внутри этой версии апстрима: перевод, патчер, веб-панель, инструменты.
+- `MAJOR.MINOR` всегда совпадает с базовой версией оригинального OpenSpec (`Fission-AI/OpenSpec`, сейчас `1.16`, тег `v1.16.0` в `upstream.json`).
+- `PATCH` (`1.16.0`, `1.16.1`, … `1.16.9`) отражает собственные релизы `openspec_ru` внутри этой версии апстрима: перевод, патчер, веб-панель, инструменты.
 
 Когда апстрим выпускает новую минорную версию (например, `1.16.0`), `openspec_ru` переходит на новую `MAJOR.MINOR` и начинает `PATCH` с нуля.
 
@@ -19,6 +19,17 @@
 - `### Изменено` — изменения существующего поведения и текстов;
 - `### Исправлено` — исправления ошибок;
 - `### Синхронизация с апстримом` — что изменилось при обновлении пина на новый тег или коммит апстрима.
+
+## [1.16.0] — 2026-11-01
+
+> Базовая версия апстрима: Fission-AI/OpenSpec @ v1.16.0 (27c0515724decc633818c735ee596481eec78a8b)
+
+### Синхронизация с апстримом
+
+- Привязка `upstream.json` обновлена до `v1.16.0` (`27c0515724decc633818c735ee596481eec78a8b`).
+- Перенесены дельты `v1.16.0`: `docs-lab/start/installation.md` (установщик `openspec.dev/cli/install.*`, архивы `.tar.gz`/`.zip`, Node.js `22.12.0+` для npm), `docs-lab/reference/cli.md`, `docs-lab/multi-repo/stores.md` (подсказка хранилища по имени remote `origin`), `docs-lab/reference/configuration/config-yaml.md`, `docs-lab/reference/schemas/spec-driven/index.md`, `schemas/spec-driven/schema.yaml` (проверка шагов `WHEN/GIVEN` и `THEN` в сценариях), `website/app/layout.tsx`, `website/lib/layout.shared.tsx` и `README.md`.
+- Переведён `install.md` (`ru/meta/install.md`), все 85 записей `manifest.json` прошли ревью (`reviewed`).
+- Пересобраны бандл `dist-ru/` и статический сайт `dist-website/` на базе `v1.16.0`.
 
 ## [1.15.1] — 2026-11-01
 

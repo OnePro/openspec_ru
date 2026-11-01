@@ -51,6 +51,8 @@ export function buildReviewPrompt({ enPath, ruPath, enContent, ruContent, glossa
     'Ты — строгий ревьюер технического перевода с английского на русский для проекта OpenSpec.',
     'Проверь сохранность смысла, терминологию по глоссарию, естественность русского языка и соблюдение стайлгайда.',
     'Не требуй перевода идентификаторов, путей, команд и других элементов, которые обязаны остаться неизменными.',
+    'В TypeScript-файлах (.ts/.tsx) выражения внутри интерполяций ${...} обязаны оставаться байт-в-байт идентичными EN (требование детерминированного валидатора) — не считай английский текст внутри ${...} ошибкой. В шаблонах процессов (.ts) примеры вывода внутри ``` в строковых литералах могут быть как переведены на русский, так и оставлены на английском.',
+    'В файлах веб-сайта (website/*) допустимы целевые правки локализации и инфраструктуры openspec_ru: lang="ru", subsets: [\'latin\', \'cyrillic\'], language: \'russian\', siteUrl openspec-ru.pages.dev, редиректы на /docs/ru и скрипт Cloudflare Web Analytics.',
     '',
     '=== ГЛОССАРИЙ (обязателен) ===',
     glossaryMd,
@@ -243,11 +245,8 @@ async function main() {
   await verifyTagCommit(upstream);
   const tree = await fetchTree(upstream);
   assertReviewCurrent(entry, tree);
-  // В переводном зеркале EN-дерева может не быть: тогда читаем pinned blob.
-  const enAbs = resolve(ROOT, entry.en);
-  const enContent = existsSync(enAbs)
-    ? readFileSync(enAbs, 'utf8')
-    : await fetchBlob(upstream, entry.base_blob_sha);
+  // Всегда берём EN из апстримового blob, чтобы не спутать с одноимённым файлом openspec_ru (например, README.md).
+  const enContent = await fetchBlob(upstream, entry.base_blob_sha);
   await reviewTranslation(entry, { cfg, tree, enContent });
 }
 

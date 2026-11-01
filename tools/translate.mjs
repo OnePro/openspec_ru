@@ -69,39 +69,47 @@ function apiUrl(cfg) {
  */
 export async function callLlm({ system, user }, cfg, fetchImpl = fetch) {
   const url = apiUrl(cfg);
+  const init = cfg.flavor === 'anthropic'
+    ? {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': cfg.key,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: cfg.model,
+          max_tokens: cfg.maxTokens,
+          temperature: cfg.temperature ?? 0,
+          system,
+          messages: [{ role: 'user', content: user }],
+        }),
+      }
+    : {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${cfg.key}`,
+        },
+        body: JSON.stringify({
+          model: cfg.model,
+          temperature: cfg.temperature ?? 0,
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: user },
+          ],
+        }),
+      };
   let res;
-  if (cfg.flavor === 'anthropic') {
-    res = await fetchImpl(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': cfg.key,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: cfg.model,
-        max_tokens: cfg.maxTokens,
-        temperature: cfg.temperature ?? 0,
-        system,
-        messages: [{ role: 'user', content: user }],
-      }),
-    });
-  } else {
-    res = await fetchImpl(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${cfg.key}`,
-      },
-      body: JSON.stringify({
-        model: cfg.model,
-        temperature: cfg.temperature ?? 0,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: user },
-        ],
-      }),
-    });
+  const maxTry = fetchImpl === fetch ? 3 : 1;
+  for (let attempt = 1; attempt <= maxTry; attempt++) {
+    try {
+      res = await fetchImpl(url, init);
+      break;
+    } catch (err) {
+      if (attempt === maxTry) throw err;
+      await new Promise((r) => setTimeout(r, attempt * 1500));
+    }
   }
   if (!res.ok) {
     const body = await res.text().catch(() => '');

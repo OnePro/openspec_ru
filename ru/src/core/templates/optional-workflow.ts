@@ -11,7 +11,7 @@
  * `command-references.ts` изменяет написание ссылки; этот модуль решает,
  * будет ли она вообще выведена. Шаблоны описывают обе ветви через
  * `optionalWorkflow()`, а `resolveOptionalWorkflows()` выбирает одну из них
- * на этапе генерации на основе разрешённого набора процессов, так что
+ * на этапе генерации на основе итогового набора процессов, так что
  * сгенерированный файл содержит один конкретный путь вместо того, чтобы
  * заставлять модель проверять доступность во время выполнения.
  */
@@ -23,7 +23,7 @@ const END = '[[opsx:end]]';
 
 /**
  * Условная конструкция, занимающая целую строку. Проверяется первой, чтобы
- * ветвь, разрешающаяся в пустую строку, уносила с собой свою строку, —
+ * ветвь, подставляющая пустую строку, уносила с собой свою строку, —
  * иначе при удалении строки таблицы или пункта списка осталась бы пустая
  * строка, которую Markdown трактует как конец таблицы или списка.
  */
@@ -33,7 +33,7 @@ const WHOLE_LINE_PATTERN =
 const CONDITIONAL_PATTERN =
   /\[\[opsx:if-workflow ([a-z-]+)\]\]([\s\S]*?)\[\[opsx:else\]\]([\s\S]*?)\[\[opsx:end\]\]/g;
 
-/** Любой остаточный маркер, используется для громкого сбоя при ошибочном написании. */
+/** Любой остаточный маркер, используется для немедленного выбрасывания ошибки при некорректной разметке. */
 const RESIDUAL_MARKER_PATTERN = /\[\[opsx:(if-workflow|else|end)/;
 
 /** Один корректный маркер в любой позиции. */
@@ -45,11 +45,11 @@ const MARKER_LIKE_PATTERN = /\[\[opsx:/;
 /**
  * Отклоняет некорректную условную конструкцию до выбора любой ветви.
  *
- * Проверки после разрешения недостаточно: невыбранная ветвь отбрасывается
+ * Проверки после подстановки недостаточно: невыбранная ветвь отбрасывается
  * первой, поэтому усечённый блок внутри неё прошёл бы для одного профиля
  * и выбросил бы исключение для другого — именно такое зависящее от профиля
- * поведение этот модуль существует, чтобы устранить. Написание либо корректно
- * для каждого профиля, либо не корректно ни для одного.
+ * поведение этот модуль существует, чтобы устранить. Разметка шаблона либо корректна
+ * для каждого профиля, либо некорректна ни для одного.
  *
  * @param text - Тело шаблона в том виде, в котором написано
  * @throws Если маркер не распознан или блоки не образуют плоскую последовательность
@@ -65,18 +65,18 @@ function assertConditionalsWellFormed(text: string): void {
   const unrecognized = MARKER_LIKE_PATTERN.exec(withoutMarkers);
   if (unrecognized) {
     throw new Error(
-      `Некорректная условная конструкция optional-workflow: нераспознанный маркер в позиции '${withoutMarkers
+      `Malformed optional-workflow conditional: unrecognized marker at '${withoutMarkers
         .slice(unrecognized.index, unrecognized.index + 40)
-        .split('\n')[0]}'. Маркеры: [[opsx:if-workflow <id>]], [[opsx:else]] и [[opsx:end]].`
+        .split('\n')[0]}'. Markers are [[opsx:if-workflow <id>]], [[opsx:else]] and [[opsx:end]].`
     );
   }
 
   for (let i = 0; i < kinds.length; i += 3) {
     if (kinds[i] !== 'if' || kinds[i + 1] !== 'else' || kinds[i + 2] !== 'end') {
       throw new Error(
-        'Некорректная условная конструкция optional-workflow: маркеры расположены в ' +
-          'неправильном порядке или блок не завершён. Каждый блок должен иметь полную форму ' +
-          '[[opsx:if-workflow <id>]] ... [[opsx:else]] ... [[opsx:end]], блоки не могут быть вложенными.'
+        'Malformed optional-workflow conditional: markers are out of order or a ' +
+          'block is incomplete. Each block needs the full [[opsx:if-workflow <id>]] ' +
+          '... [[opsx:else]] ... [[opsx:end]] form, and blocks cannot nest.'
       );
     }
   }
@@ -119,14 +119,14 @@ export function onlyWithWorkflow(workflowId: string, whenInstalled: string): str
 }
 
 /**
- * Разрешает каждый фрагмент `optionalWorkflow()` в `text` относительно процессов,
- * которые будут фактически установлены.
+ * Обрабатывает каждый фрагмент `optionalWorkflow()` в `text`, подставляя нужную ветвь
+ * для процессов, которые будут фактически установлены.
  *
  * Выполняется до трансформеров ссылок на команды, поэтому ссылка из удалённой
  * ветви никогда до них не доходит.
  *
  * @param text - Тело шаблона, возможно содержащее условные конструкции
- * @param installedWorkflows - Разрешённый набор процессов для данной установки
+ * @param installedWorkflows - Итоговый набор процессов для данной установки
  * @returns Тело с одной сохранённой ветвью каждой условной конструкции
  * @throws Если некорректная условная конструкция оставляет маркер в выводе
  */
@@ -158,22 +158,22 @@ export function resolveOptionalWorkflows(
 
   assertWorkflowConditionalsResolved(
     resolved,
-    'Некорректная условная конструкция optional-workflow'
+    'Malformed optional-workflow conditional'
   );
 
   return resolved;
 }
 
 /**
- * Громко завершает сбоем, если `text` всё ещё содержит маркер условной конструкции.
+ * Немедленно выбрасывает ошибку, если `text` всё ещё содержит маркер условной конструкции.
  *
- * Вызывается в конце разрешения, чтобы перехватить некорректный блок, и снова
+ * Вызывается в конце подстановки, чтобы перехватить некорректный блок, и снова
  * в точках записи сгенерированного файла — так тело, полностью миновавшее
- * разрешение (путь генерации, обошедший getSkillTemplates / getCommandTemplates),
+ * подстановку (путь генерации, обошедший getSkillTemplates / getCommandTemplates),
  * выбрасывает исключение вместо того, чтобы поставлять пользователю
  * буквальные маркеры.
  *
- * @param text - Текст, готовый к записи или только что разрешённый
+ * @param text - Текст, готовый к записи или только что обработанный
  * @param reason - Что пошло не так, используется как префикс сообщения
  * @throws Если остался любой маркер `[[opsx:...]]`
  */
@@ -181,10 +181,10 @@ export function assertWorkflowConditionalsResolved(text: string, reason: string)
   const residual = RESIDUAL_MARKER_PATTERN.exec(text);
   if (residual) {
     throw new Error(
-      `${reason}: '${residual[0]}' не разрешён. Блоки Optional-workflow ` +
-        'разрешаются getSkillTemplates()/getCommandTemplates() относительно установленного ' +
-        'набора процессов, и каждый должен иметь полную форму ' +
-        '[[opsx:if-workflow <id>]] ... [[opsx:else]] ... [[opsx:end]].'
+      `${reason}: '${residual[0]}' is unresolved. Optional-workflow blocks are ` +
+        'resolved by getSkillTemplates()/getCommandTemplates() against the installed ' +
+        'workflow set, and each needs the full [[opsx:if-workflow <id>]] ... ' +
+        '[[opsx:else]] ... [[opsx:end]] form.'
     );
   }
 }

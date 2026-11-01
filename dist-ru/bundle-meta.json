@@ -1,11 +1,11 @@
 {
-  "bundleVersion": "v1.15.1",
+  "bundleVersion": "v1.16.0",
   "upstream": {
     "repo": "Fission-AI/OpenSpec",
-    "tag": "v1.15.0",
-    "commit": "8e0288df12d401b0e183e2f47254d22528c1dffb"
+    "tag": "v1.16.0",
+    "commit": "27c0515724decc633818c735ee596481eec78a8b"
   },
-  "openspecVersion": "1.15.0",
+  "openspecVersion": "1.16.0",
   "tools": [
     {
       "id": "claude",
