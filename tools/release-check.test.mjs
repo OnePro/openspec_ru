@@ -21,9 +21,10 @@ function validState(overrides = {}) {
   };
 }
 
-test('2.2 release-check: текущий репозиторий проходит проверку (с --tag v1.15.0)', () => {
+test('2.2 release-check: текущий репозиторий проходит проверку (тег текущей версии)', () => {
   const state = loadReleaseState(ROOT);
-  const res = validateReleaseState({ ...state, tag: 'v1.15.0' });
+  const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
+  const res = validateReleaseState({ ...state, tag: `v${pkg.version}` });
   assert.deepEqual(res.errors, []);
   assert.equal(res.ok, true);
 });
