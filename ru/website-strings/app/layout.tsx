@@ -5,7 +5,7 @@ import { appName, siteUrl } from '@/lib/shared';
 import './global.css';
 
 const inter = Inter({
-  subsets: ['latin'],
+  subsets: ['latin', 'cyrillic'],
 });
 
 const description =
@@ -36,6 +36,12 @@ export default function Layout({ children }: LayoutProps<'/'>) {
     <html lang="ru" className={inter.className} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen">
         <Provider>{children}</Provider>
+        {/* Cloudflare Web Analytics (openspec_ru): посещаемость, источники, страницы. */}
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "c4c5e4b6ae5a4c28bf237c81c89958ed"}'
+        />
       </body>
     </html>
   );

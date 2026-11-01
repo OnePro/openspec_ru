@@ -5,9 +5,9 @@
 export default function Home() {
   return (
     <>
-      <meta httpEquiv="refresh" content="0; url=/docs" />
+      <meta httpEquiv="refresh" content="0; url=/docs/ru" />
       <p>
-        Перенаправление к <a href="/docs">документации</a>…
+        Перенаправление к <a href="/docs/ru">обзору OpenSpec RU</a>…
       </p>
     </>
   );
