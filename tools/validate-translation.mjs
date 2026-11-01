@@ -27,24 +27,28 @@ export function isYaml(path) { return YAML_EXTS.has(extname(path)); }
 // Markdown-зоны: fenced-код-блоки исключаются из структурных проверок.
 // ---------------------------------------------------------------------------
 
-/** Разбивает markdown на «вне кода» и число код-блоков. */
+/** Разбивает markdown на «вне кода» и число код-блоков.
+ *  Fence-aware: блок закрывается ограждением той же длины и символа
+ *  (поддерживает вложенность вида ```` с ``` внутри). */
 export function codeZones(md) {
   const lines = md.replace(/\r\n/g, '\n').split('\n');
   const outside = [];
-  let inFence = false;
+  let openFence = null;
   let blocks = 0;
   for (const line of lines) {
-    if (/^[ \t]*(```+|~~~+)/.test(line)) {
-      if (inFence) {
-        inFence = false;
-      } else {
-        inFence = true;
-        blocks++;
-      }
+    const m = line.match(/^[ \t]*(`{3,}|~{3,})/);
+    if (!openFence && m) {
+      openFence = m[1];
+      blocks++;
       outside.push('');
       continue;
     }
-    outside.push(inFence ? '' : line);
+    if (openFence && m && m[1][0] === openFence[0] && m[1].length >= openFence.length) {
+      openFence = null;
+      outside.push('');
+      continue;
+    }
+    outside.push(openFence ? '' : line);
   }
   return { outside: outside.join('\n'), blocks };
 }

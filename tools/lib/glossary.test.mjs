@@ -15,9 +15,9 @@ import {
   translatableEntries,
 } from './glossary.mjs';
 
-test('реальный glossary.md: все строки таблицы парсятся, 40–60 терминов', () => {
+test('реальный glossary.md: все строки таблицы парсятся, 40–80 терминов', () => {
   const entries = loadGlossary();
-  assert.ok(entries.length >= 40 && entries.length <= 60, `терминов: ${entries.length}`);
+  assert.ok(entries.length >= 40 && entries.length <= 80, `терминов: ${entries.length}`);
   for (const e of entries) {
     assert.ok(e.en.length > 0, 'EN непустой');
     assert.ok(e.ru.length > 0, 'RU непустой');
