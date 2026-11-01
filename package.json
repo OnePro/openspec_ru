@@ -21,10 +21,14 @@
     "validate:ru": "node tools/validate-translation.mjs --all",
     "lint:glossary": "node tools/validate-translation.mjs --lint ru",
     "build:ru": "node tools/build-ru.mjs",
+    "build:website:ru": "node tools/build-website-ru.mjs",
     "release:check": "node tools/release-check.mjs",
-    "test": "node --test \"tools/**/*.test.mjs\""
+    "test": "node --test \"tools/**/*.test.mjs\"",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.156.0"
   }
 }

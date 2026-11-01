@@ -20,7 +20,7 @@ import { gitConfig } from '@/lib/shared';
 // (который не может выполнять HTTP-перенаправления), по аналогии с app/page.tsx.
 // Удалите эту константу, два её использования ниже и параметр `{ slug: [] }`
 // после восстановления страницы «Обзор».
-const TEMP_DOCS_INDEX_REDIRECT = '/docs/installation';
+const TEMP_DOCS_INDEX_REDIRECT = '/docs/ru';
 
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
@@ -31,7 +31,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         <>
           <meta httpEquiv="refresh" content={`0; url=${TEMP_DOCS_INDEX_REDIRECT}`} />
           <p>
-            Перенаправление на страницу <a href={TEMP_DOCS_INDEX_REDIRECT}>установки</a>…
+            Перенаправление на обзор <a href={TEMP_DOCS_INDEX_REDIRECT}>OpenSpec RU</a>…
           </p>
         </>
       );
