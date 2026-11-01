@@ -127,19 +127,25 @@ export function maskIgnoredZones(text, { markdown = true } = {}) {
   // 1. Frontmatter в начале файла.
   const fm = text.match(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(\r?\n|$)/);
   if (fm) mask(0, fm[0].length);
-  // 2. Fenced-код-блоки (``` или ~~~).
-  const fenceRe = /^[ \t]*(```+|~~~+).*$/gm;
-  let open = null;
-  let m;
-  while ((m = fenceRe.exec(text)) !== null) {
-    if (open === null) {
-      open = m.index;
-    } else {
-      mask(open, m.index + m[0].length);
-      open = null;
+  // 2. Fenced-код-блоки (``` или ~~~, вложенность учитывается:
+  //    блок закрывается ограждением той же длины и символа).
+  const lines = text.split('\n');
+  let offset = 0;
+  let openIdx = null;
+  let openFence = null;
+  for (const line of lines) {
+    const fm = line.match(/^[ \t]*(`{3,}|~{3,})/);
+    if (openFence === null && fm) {
+      openFence = fm[1];
+      openIdx = offset;
+    } else if (openFence !== null && fm && fm[1][0] === openFence[0] && fm[1].length >= openFence.length) {
+      mask(openIdx, offset + line.length);
+      openFence = null;
     }
+    offset += line.length + 1;
   }
   // 3. HTML-комментарии (многострочные).
+  let m;
   const commentRe = /<!--[\s\S]*?-->/g;
   while ((m = commentRe.exec(text)) !== null) mask(m.index, m.index + m[0].length);
   const masked1 = chars.join('');

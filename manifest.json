@@ -9,294 +9,294 @@
       "en": "docs-lab/customize/overview.md",
       "ru": "ru/docs-lab/customize/overview.md",
       "base_blob_sha": "203000ac136154c60c0a23e6b160106c1e7239cb",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/customize/profiles.md",
       "ru": "ru/docs-lab/customize/profiles.md",
       "base_blob_sha": "45406bbe7805f128bd5f7bdbc5c08f5e653a0349",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/customize/project-config.md",
       "ru": "ru/docs-lab/customize/project-config.md",
       "base_blob_sha": "2226ac035e92aff4cbcd33b5e62e418436fc3272",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/customize/schemas.md",
       "ru": "ru/docs-lab/customize/schemas.md",
       "base_blob_sha": "9bf70f706c12f4459fa11e7733fd37c0c5d64501",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/customize/skills.md",
       "ru": "ru/docs-lab/customize/skills.md",
       "base_blob_sha": "6a54510c970fdcb3a309be50ffb097ea8a26b424",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/guides/apply.md",
       "ru": "ru/docs-lab/guides/apply.md",
       "base_blob_sha": "dacb1027d183df7a238c1bfcc49bec7ada37e162",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/guides/change-course.md",
       "ru": "ru/docs-lab/guides/change-course.md",
       "base_blob_sha": "f12a8d87333be67e05988b744f7edbf1692daf65",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/guides/concepts.md",
       "ru": "ru/docs-lab/guides/concepts.md",
       "base_blob_sha": "f203e5da31506326921b37ca2c397e58cdb5498c",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/guides/examples.md",
       "ru": "ru/docs-lab/guides/examples.md",
       "base_blob_sha": "6e5745eb45d5465ecb85e149f52170e115f5c846",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/guides/existing-codebases.md",
       "ru": "ru/docs-lab/guides/existing-codebases.md",
       "base_blob_sha": "e589c553867c519e1fc33b10f8902b704932aa17",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/guides/explore.md",
       "ru": "ru/docs-lab/guides/explore.md",
       "base_blob_sha": "230d2c0b8d4fda2ca3e0eb080c9acb0f85e55a72",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/guides/review-the-plan.md",
       "ru": "ru/docs-lab/guides/review-the-plan.md",
       "base_blob_sha": "4623d9b55524493696b535e6c52de533a67e5267",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/guides/teams.md",
       "ru": "ru/docs-lab/guides/teams.md",
       "base_blob_sha": "1285ddfea36a4a3c586581e23082ecd0ce02c1b4",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/help/faq.md",
       "ru": "ru/docs-lab/help/faq.md",
       "base_blob_sha": "064e018c601ab383e1ac48960ea96b388d784a63",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/help/legacy/migration.md",
       "ru": "ru/docs-lab/help/legacy/migration.md",
       "base_blob_sha": "bd5fd99bb9f59233a7b69fa6223321d66aa2db59",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/help/troubleshooting.md",
       "ru": "ru/docs-lab/help/troubleshooting.md",
       "base_blob_sha": "d4962852f7fe993d081cea3b0c7cda5f0d0190ee",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/message-map.md",
       "ru": "ru/docs-lab/message-map.md",
       "base_blob_sha": "b7fb74f6ddd1e9fdbd915832a0f5049c81671861",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/multi-repo/stores.md",
       "ru": "ru/docs-lab/multi-repo/stores.md",
       "base_blob_sha": "0b596b91f9299f52f122b1253ff198052e2781aa",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/multi-repo/worksets.md",
       "ru": "ru/docs-lab/multi-repo/worksets.md",
       "base_blob_sha": "c0886f106ba41b1023ef5ec9000280553612c1e9",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/Notes.md",
       "ru": "ru/docs-lab/Notes.md",
       "base_blob_sha": "f4217fbf522ab0745fe007540c4d5ca129696f3d",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/README.md",
       "ru": "ru/docs-lab/README.md",
       "base_blob_sha": "86190e96aecc34d59dbe95b49cadf0f2a10ade57",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/architecture/design-decisions.md",
       "ru": "ru/docs-lab/reference/architecture/design-decisions.md",
       "base_blob_sha": "78bf92551eb95c20e6c7da0007e3ef1a1a6ed6ab",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/architecture/index.md",
       "ru": "ru/docs-lab/reference/architecture/index.md",
       "base_blob_sha": "e16604713922d06601e1e0864acc0e767cef118e",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/architecture/workflow-runs.md",
       "ru": "ru/docs-lab/reference/architecture/workflow-runs.md",
       "base_blob_sha": "6b29921cdbec3cbf2e6b1824c88b919e79074a6c",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/cli.md",
       "ru": "ru/docs-lab/reference/cli.md",
       "base_blob_sha": "982acf456de4b558d127a8871f8aad682a13b508",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/configuration/change-metadata.md",
       "ru": "ru/docs-lab/reference/configuration/change-metadata.md",
       "base_blob_sha": "d81025cae4da530014adc33e9dcac3103533c03f",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/configuration/config-json.md",
       "ru": "ru/docs-lab/reference/configuration/config-json.md",
       "base_blob_sha": "44284080918659daa68cfcec16bdf6eb1925144f",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/configuration/config-yaml.md",
       "ru": "ru/docs-lab/reference/configuration/config-yaml.md",
       "base_blob_sha": "9f6886c92c9a0b71c9dda1f5764ba6464efe4920",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/configuration/environment-variables.md",
       "ru": "ru/docs-lab/reference/configuration/environment-variables.md",
       "base_blob_sha": "dc1c608ef8778987566f6cc627c28d74359b288f",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/configuration/index.md",
       "ru": "ru/docs-lab/reference/configuration/index.md",
       "base_blob_sha": "e196b9b87a4daf5734b267a5a04752365a3c6855",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/configuration/stores.md",
       "ru": "ru/docs-lab/reference/configuration/stores.md",
       "base_blob_sha": "1d843f51f5e3c94a95c94efb33d27d4f909d694d",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/glossary.md",
       "ru": "ru/docs-lab/reference/glossary.md",
       "base_blob_sha": "a4c1c74be4859f7f5368cb37fc551df374bc098c",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/schemas/index.md",
       "ru": "ru/docs-lab/reference/schemas/index.md",
       "base_blob_sha": "7e93fd2bfee11ff7290fae3afe5e6dffedf3eed9",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/schemas/schema-yaml.md",
       "ru": "ru/docs-lab/reference/schemas/schema-yaml.md",
       "base_blob_sha": "6dc14fe266c068f9c42640304a1ec8bcac62e232",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/schemas/spec-driven/index.md",
       "ru": "ru/docs-lab/reference/schemas/spec-driven/index.md",
       "base_blob_sha": "5e9c1ea31630f9ca221eb68979569727de544b27",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/skills.md",
       "ru": "ru/docs-lab/reference/skills.md",
       "base_blob_sha": "29088deaa9752f4704b7a9e238d63ecd82797831",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/reference/supported-tools.md",
       "ru": "ru/docs-lab/reference/supported-tools.md",
       "base_blob_sha": "50595efba523b0af8bb0267b913f1959902d3a0c",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/sources.md",
       "ru": "ru/docs-lab/sources.md",
       "base_blob_sha": "f915a8ac86f4f8ee7308a47dc1c76f39a1529a6d",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/start/installation.md",
       "ru": "ru/docs-lab/start/installation.md",
       "base_blob_sha": "1e228cf82148de2ba638c775af8aed174401dbd4",
-      "status": "machine",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/start/overview.md",
       "ru": "ru/docs-lab/start/overview.md",
       "base_blob_sha": "9456031c1f772926454ba4d32077d50942a6ed83",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/start/quickstart.md",
       "ru": "ru/docs-lab/start/quickstart.md",
       "base_blob_sha": "90c4e28989c007460f663b5d5b6e7f739e1ef743",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
       "en": "docs-lab/start/setup.md",
       "ru": "ru/docs-lab/start/setup.md",
       "base_blob_sha": "668e03790d79941ae1f333902330befd6d21978e",
-      "status": "pending",
+      "status": "reviewed",
       "area": "docs-lab"
     },
     {
