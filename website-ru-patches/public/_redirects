@@ -1,0 +1,5 @@
+# Cloudflare Pages redirects (evaluated before static assets).
+# openspec_ru: корень и /docs ведут на обзор русской версии (секция «OpenSpec RU»).
+# Прямые URL (/docs/installation и др.) остаются доступными.
+/ /docs/ru 302
+/docs /docs/ru 302

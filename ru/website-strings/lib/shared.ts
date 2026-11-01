@@ -7,7 +7,7 @@ export const appName = 'OpenSpec';
 // где переменная не задана или пуста (в противном случае пустая строка вызвала
 // бы сбой `new URL()` во время сборки).
 export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || 'https://openspec.dev';
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://openspec-ru.pages.dev';
 
 export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';

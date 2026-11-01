@@ -7,11 +7,11 @@ export const revalidate = false;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl.replace(/\/$/, '');
-  // `/` перенаправляет на /docs, поэтому карта сайта состоит только из страниц
-  // документации; главная страница документации получает наивысший приоритет.
+  // `/` перенаправляет на /docs/ru, поэтому карта сайта состоит только из страниц
+  // документации; обзор OpenSpec RU получает наивысший приоритет.
   return source.getPages().map((page) => ({
     url: `${base}${page.url}`,
     changeFrequency: 'weekly' as const,
-    priority: page.url === '/docs' ? 1 : 0.7,
+    priority: page.url === '/docs/ru' ? 1 : 0.7,
   }));
 }
