@@ -21,6 +21,8 @@ import { ROOT, readManifest, writeManifest } from './lib/manifest.mjs';
 import { fetchBlob, fetchTree, readUpstream, verifyTagCommit } from './lib/github.mjs';
 import { loadGlossary } from './lib/glossary.mjs';
 import { validatePair } from './validate-translation.mjs';
+import { formatGateDiagnostics, gateFile } from './gate-website-ru.mjs';
+import { reviewTranslation } from './review-translation.mjs';
 
 export const GLOSSARY_MD = resolve(ROOT, 'glossary.md');
 export const STYLE_GUIDE_MD = resolve(ROOT, 'style-guide.md');
@@ -47,6 +49,8 @@ export function llmConfigFromEnv(env = process.env) {
     model: env.TRANSLATE_API_MODEL,
     flavor,
     maxTokens: Number(env.TRANSLATE_API_MAX_TOKENS ?? 32768),
+    // temperature=0 по умолчанию (воспроизводимость); kimi-coding принимает только 1.
+    temperature: Number(env.TRANSLATE_API_TEMPERATURE ?? 0),
   };
 }
 
@@ -77,7 +81,7 @@ export async function callLlm({ system, user }, cfg, fetchImpl = fetch) {
       body: JSON.stringify({
         model: cfg.model,
         max_tokens: cfg.maxTokens,
-        temperature: 0,
+        temperature: cfg.temperature ?? 0,
         system,
         messages: [{ role: 'user', content: user }],
       }),
@@ -91,7 +95,7 @@ export async function callLlm({ system, user }, cfg, fetchImpl = fetch) {
       },
       body: JSON.stringify({
         model: cfg.model,
-        temperature: 0,
+        temperature: cfg.temperature ?? 0,
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },
@@ -132,7 +136,7 @@ const ZONE_RULES = {
     'файл обязан оставаться валидным YAML с той же структурой. Ключи и значения-идентификаторы',
     '(id, name, version, generates, template, tracks, requires) не переводи и не меняй байт-в-байт.',
   ].join(' '),
-  website: 'Это TS/TSX-файл веб-сайта. Переводи только видимые пользователю строки; идентификаторы, импорты, экспорты и токены ${...} не меняй.',
+  website: 'Это TS/TSX-файл веб-сайта. Переводи видимые пользователю строки И комментарии; идентификаторы, импорты, экспорты и токены ${...} не меняй.',
 };
 
 const MD_RULES = [
@@ -302,6 +306,31 @@ export function applyManifestSuccess(manifest, enPath, blobSha) {
 }
 
 // ---------------------------------------------------------------------------
+// Гейт website и advisor после фиксации статуса machine (D1, D6).
+// ---------------------------------------------------------------------------
+
+export async function runPostTranslation({
+  entry,
+  tree,
+  enContent,
+  ruContent,
+  env = process.env,
+  gate = gateFile,
+  review = reviewTranslation,
+  log = console,
+  ...reviewOptions
+}) {
+  if (entry.area === 'website') {
+    const diagnostics = gate(resolve(ROOT, entry.ru));
+    if (diagnostics.length > 0) {
+      for (const line of formatGateDiagnostics(entry.ru, diagnostics)) log.error(line);
+      throw new Error(`${entry.en}: синтаксический гейт не пройден; статус machine сохранён, ревью не выполнялось.`);
+    }
+  }
+  return review(entry, { tree, enContent, ruContent, env, log, ...reviewOptions });
+}
+
+// ---------------------------------------------------------------------------
 // CLI.
 // ---------------------------------------------------------------------------
 
@@ -409,6 +438,7 @@ async function main() {
   applyManifestSuccess(manifest, entry.en, targetSha);
   writeManifest(manifest);
   console.log(`${entry.en} -> ${entry.ru}: переведено за ${result.attempts} попыток, статус machine, base ${targetSha.slice(0, 12)}.`);
+  await runPostTranslation({ entry, tree, enContent: enReference, ruContent: result.ru });
 }
 
 const isMain = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;

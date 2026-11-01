@@ -23,5 +23,8 @@
     "build:ru": "node tools/build-ru.mjs",
     "release:check": "node tools/release-check.mjs",
     "test": "node --test \"tools/**/*.test.mjs\""
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   }
 }
