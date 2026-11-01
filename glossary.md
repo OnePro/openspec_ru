@@ -23,6 +23,7 @@
 | archive | архив | переводить |
 | store | хранилище | переводить |
 | workflow | процесс | запрещено:воркфлоу |
+| prompt | промпт | переводить |
 | requirement | требование | переводить |
 | task | задача | переводить |
 | design | дизайн | переводить |
@@ -40,6 +41,19 @@
 | OpenSpec | OpenSpec | не переводить |
 | Spec Kit | Spec Kit | не переводить |
 | openspec | openspec | не переводить |
+| openspec archive | openspec archive | не переводить |
+| openspec change | openspec change | не переводить |
+| openspec spec | openspec spec | не переводить |
+| openspec schema | openspec schema | не переводить |
+| openspec store | openspec store | не переводить |
+| Zed Agent | Zed Agent | не переводить |
+| Hermes Agent | Hermes Agent | не переводить |
+| Delta specs | Delta specs | не переводить |
+| ### schema | ### schema | не переводить |
+| ### store | ### store | не переводить |
+| Creating change | Creating change | не переводить |
+| with schema | with schema | не переводить |
+| Schema: lite | Schema: lite | не переводить |
 | /opsx:explore | /opsx:explore | не переводить |
 | /opsx:propose | /opsx:propose | не переводить |
 | /opsx:new | /opsx:new | не переводить |
