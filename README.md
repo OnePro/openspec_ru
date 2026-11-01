@@ -2,6 +2,8 @@
 
 Русскоязычный перевод [OpenSpec](https://github.com/Fission-AI/OpenSpec) — AI-скиллов, slash-команд, схем артефактов и встроенной веб-панели спецификаций, — привязанный к конкретной версии оригинала (`v1.15.0`), с автоматическим обнаружением дрейфа апстрима.
 
+**Сайт с переведённой документацией: https://openspec-ru.pages.dev** (начните с [/docs/ru](https://openspec-ru.pages.dev/docs/ru) — обзор и установка за 4 шага).
+
 <p align="center">
   <img src="assets/openspec-ru-ui-kanban.png" alt="OpenSpec RU — Доска изменений (Канбан)" width="100%">
 </p>
@@ -19,12 +21,12 @@
 
 ```sh
 # 1. Установите штатный CLI OpenSpec один раз на компьютер (если ещё не установлен)
-npm install -g @fission-ai/openspec@latest
+npm install -g @fission-ai/openspec@1.15
 
 # 2. Инициализируйте проект и сразу примените русский перевод одной командой
-npx --yes github:OnePro/openspec_ru init
+npx --yes github:OnePro/openspec_ru#v1.15.0 init
 # или неинтерактивно (например, для Claude Code, Cursor, Pi или всех инструментов):
-npx --yes github:OnePro/openspec_ru init --tools claude
+npx --yes github:OnePro/openspec_ru#v1.15.0 init --tools claude
 ```
 
 Что делает команда за один шаг:
@@ -39,7 +41,7 @@ npx --yes github:OnePro/openspec_ru init --tools claude
 Если `openspec init` в проекте уже выполнялся ранее:
 
 ```sh
-npx --yes github:OnePro/openspec_ru apply
+npx --yes github:OnePro/openspec_ru#v1.15.0 apply
 # или, если openspec-ru уже установлен:
 openspec-ru apply
 ```
@@ -57,7 +59,7 @@ openspec-ru apply --dry-run
 ```sh
 openspec-ru update
 # или через npx (с обходом локального кэша npx):
-npx --yes github:OnePro/openspec_ru#HEAD update
+npx --yes github:OnePro/openspec_ru#v1.15.0 update
 ```
 
 Команда сама:

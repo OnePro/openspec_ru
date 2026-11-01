@@ -27,7 +27,7 @@ function toText(node: Node): string {
 function slugify(title: string): string {
   return title
     .toLowerCase()
-    .replace(/[^a-z0-9 -]/g, '')
+    .replace(/[^a-z0-9а-яё -]/g, '')
     .trim()
     .replace(/\s+/g, '-');
 }

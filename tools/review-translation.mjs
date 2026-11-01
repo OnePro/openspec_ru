@@ -40,7 +40,8 @@ export function reviewConfigFromEnv(env = process.env) {
     model: env.REVIEW_API_MODEL,
     flavor,
     maxTokens: Number(env.REVIEW_API_MAX_TOKENS ?? 32768),
-    temperature: 0,
+    // kimi-coding принимает только temperature=1; дефолт 0 для воспроизводимости.
+    temperature: Number(env.REVIEW_API_TEMPERATURE ?? 0),
   };
 }
 
