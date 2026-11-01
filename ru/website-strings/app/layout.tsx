@@ -18,6 +18,15 @@ export const metadata: Metadata = {
     template: `%s | ${appName}`,
   },
   description,
+  // Маршрутизирующий Worker openspec.dev отправляет /docs/* на этот сайт, а корневые пути —
+  // на целевую страницу, поэтому иконки (и логотип) располагаются в public/docs.
+  icons: {
+    icon: [
+      { url: '/docs/icon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/docs/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: { url: '/docs/apple-icon.png', sizes: '180x180', type: 'image/png' },
+  },
   openGraph: {
     title: `${appName} | Сначала договоритесь, затем уверенно создавайте`,
     description,

@@ -1,6 +1,6 @@
 {
   "name": "openspec-ru",
-  "version": "1.15.1",
+  "version": "1.16.0",
   "description": "Русскоязычный перевод OpenSpec (Fission-AI/OpenSpec) с трекингом дрейфа апстрима",
   "type": "module",
   "bin": {

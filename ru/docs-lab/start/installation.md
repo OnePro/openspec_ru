@@ -5,55 +5,19 @@
 
 ## Установка
 
-OpenSpec устанавливается как единый файл `openspec`. Для него не нужен Node.js.
-
 В macOS или Linux выполните в терминале:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/scripts/binary/install.sh | sh
+curl -fsSL https://openspec.dev/cli/install.sh | sh
 ```
 
 В Windows выполните в PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/scripts/binary/install.ps1 | iex
+irm https://openspec.dev/cli/install.ps1 | iex
 ```
 
-- **Куда устанавливается**: `~/.local/bin`; в Windows — `%LOCALAPPDATA%\Programs\openspec` (путь добавляется в пользовательский PATH).
-- **Что проверяется**: установщик выбирает файл для вашей платформы и сверяет его с `SHA256SUMS` релиза перед установкой.
-- **Какой релиз**: самый новый, к которому прикреплены все файлы. В течение нескольких минут после публикации релиза, пока файлы загружаются, устанавливается предыдущий релиз с соответствующим уведомлением.
-- **Alpine Linux**: сначала выполните `apk add libstdc++ libgcc`.
-- **Параметры**: задайте `OPENSPEC_INSTALL_DIR` для установки в другой каталог или `OPENSPEC_VERSION=v1.15.0` для закрепления конкретного релиза.
-
-Если установщик сообщит, что папка отсутствует в вашем PATH, добавьте её согласно выведенной инструкции. Затем [проверьте работоспособность](#check-it-worked).
-
-Сам процесс выполняется внутри ИИ-инструмента для написания кода: Claude Code, Cursor или любого другого инструмента из [списка поддерживаемых](../reference/supported-tools.md).
-
-### Самостоятельное скачивание
-
-Каждый [релиз](https://github.com/Fission-AI/OpenSpec/releases/latest) содержит по одному файлу для каждой платформы:
-
-| Платформа | Файл |
-|---|---|
-| macOS 13+ (Apple silicon / Intel) | `openspec-darwin-arm64` / `openspec-darwin-x64` |
-| Linux, glibc 2.17+ (arm64 / x64) | `openspec-linux-arm64` / `openspec-linux-x64` |
-| Alpine 3.17+ (arm64 / x64) | `openspec-linux-arm64-musl` / `openspec-linux-x64-musl` |
-| Windows 10+ (arm64 / x64) | `openspec-windows-arm64.exe` / `openspec-windows-x64.exe` |
-
-Переименуйте файл в `openspec` (`openspec.exe` в Windows), выполните `chmod +x openspec` в macOS или Linux и поместите его в каталог из вашего PATH.
-
-> [!NOTE]
-> macOS блокирует файлы, скачанные через браузер, пока вы не выполните `xattr -d com.apple.quarantine openspec`. При использовании команды установки выше этого делать не нужно.
-
-### Проверка скачанного файла
-
-Каждый бинарный файл релиза снабжён подписанной записью запуска процесса сборки, который его создал. С помощью [GitHub CLI](https://cli.github.com) выполните в терминале:
-
-```bash
-gh attestation verify openspec-darwin-arm64 --repo Fission-AI/OpenSpec
-```
-
-Команда подтвердит, что файл действительно был собран процессом этого релиза, или завершится ошибкой. Этот шаг необязателен: установщик уже проверяет каждое скачивание по `SHA256SUMS`.
+Если установщик выведет строку `export PATH=...`, выполните её. Затем [проверьте работоспособность](#check-it-worked).
 
 ## Установка с помощью ИИ-ассистента
 
@@ -72,7 +36,7 @@ curl -fsSL https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/install.md
 Эта команда загружает [install.md из корня репозитория](https://github.com/Fission-AI/OpenSpec/blob/main/install.md) — промпт, написанный для любого агента, умеющего выполнять shell-команды (некоторые интеграции для IDE этого не умеют). Ваш ассистент выполнит следующие действия:
 
 1. Пропустит установку, если CLI уже есть на вашем компьютере, и предложит обновить его тем же способом, каким он был установлен. Если использовался npm или Homebrew, ассистент один раз упомянет без навязывания, что `openspec install` переключает на автономную установку. В противном случае он покажет команду установки, приведённую выше, и дождётся вашего подтверждения перед запуском.
-2. Использует npm, только если вы сами об этом попросите или если установщик завершится ошибкой, и остановится, если версия Node старше 20.19.0.
+2. Использует npm, только если вы сами об этом попросите или если установщик завершится ошибкой, и остановится, если версия Node старше 22.12.0.
 3. Проверит, что `openspec` доступен в вашем PATH.
 4. Назовёт целевую папку проекта, предложит ИИ-инструмент, в котором вы сейчас общаетесь, спросит, какими ещё инструментами вы пользуетесь, а затем запустит там `openspec init` (шаг [настройки проекта](setup.md)).
 5. Сообщит, какие файлы создала инициализация и как именно вызывать OpenSpec в вашем инструменте.
@@ -83,13 +47,13 @@ curl -fsSL https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/install.md
 
 ## Пакетные менеджеры
 
-Эти менеджеры устанавливают OpenSpec как пакет Node.js, поэтому им требуется Node.js 20.19.0 или новее (Homebrew и Nix устанавливают собственную копию). Проверьте версию в терминале:
+Эти менеджеры устанавливают OpenSpec как пакет Node.js, поэтому им требуется Node.js 22.12.0 или новее (Homebrew и Nix устанавливают собственную копию). Проверьте версию в терминале:
 
 ```bash
 node --version
 ```
 
-Если команда выводит `v20.19.0` или выше, установите пакет через npm:
+Если команда выводит `v22.12.0` или выше, установите пакет через npm:
 
 ```npm
 npm install -g @fission-ai/openspec@latest
@@ -164,6 +128,56 @@ openspec --version
 Если выводится номер версии, значит CLI находится в вашем PATH. Установка выполняется один раз на компьютер.
 
 Далее перейдите к [настройке проекта](setup.md). Если ваш ассистент уже запустил инициализацию, на этой странице описано, какие файлы были созданы и как их настроить.
+
+## Параметры установки
+
+Чтобы выбрать версию или папку, задайте переменную перед `sh`:
+
+```bash
+curl -fsSL https://openspec.dev/cli/install.sh | OPENSPEC_VERSION=v1.15.0 sh
+```
+
+- **`OPENSPEC_VERSION`**: устанавливаемый релиз, например `v1.15.0`. По умолчанию используется самый новый релиз.
+- **`OPENSPEC_INSTALL_DIR`**: папка для установки. По умолчанию — `~/.local/bin` (в Windows: `%LOCALAPPDATA%\Programs\openspec`).
+
+В Windows сначала задайте переменную:
+
+```powershell
+$env:OPENSPEC_VERSION = 'v1.15.0'
+irm https://openspec.dev/cli/install.ps1 | iex
+```
+
+В Alpine Linux перед установкой выполните `apk add libstdc++ libgcc`.
+
+### Скачивание вручную
+
+Каждый релиз содержит по одному файлу для каждого типа компьютера:
+
+| Компьютер | Файл |
+|---|---|
+| Mac, Apple silicon | `openspec-darwin-arm64.tar.gz` |
+| Mac, Intel | `openspec-darwin-x64.tar.gz` |
+| Linux, arm64 | `openspec-linux-arm64.tar.gz` |
+| Linux, x64 | `openspec-linux-x64.tar.gz` |
+| Alpine, arm64 | `openspec-linux-arm64-musl.tar.gz` |
+| Alpine, x64 | `openspec-linux-x64-musl.tar.gz` |
+| Windows, arm64 | `openspec-windows-arm64.zip` |
+| Windows, x64 | `openspec-windows-x64.zip` |
+
+1. **Скачайте** нужный файл со страницы [последнего релиза](https://github.com/Fission-AI/OpenSpec/releases/latest). Файлы прикрепляются через несколько минут после публикации релиза. Если вашего файла ещё нет в списке, подождите и обновите страницу или возьмите его из предыдущего релиза.
+2. **Распакуйте** архив. В терминале: `tar -xzf openspec-darwin-arm64.tar.gz`. В Windows нажмите правой кнопкой мыши на файл `.zip` и выберите «Извлечь все» (Extract All).
+3. **В macOS** выполните `xattr -d com.apple.quarantine openspec` в папке, куда вы распаковали архив. macOS блокирует файлы, скачанные через браузер, пока вы этого не сделаете.
+4. **Переместите** `openspec` в папку из вашего PATH, например `~/.local/bin`. В Windows переместите `openspec.exe` в папку из вашего пользовательского PATH, например `%LOCALAPPDATA%\Programs\openspec`.
+
+### Проверка скачанного файла
+
+Чтобы убедиться, что файл был собран процессом релиза OpenSpec, выполните эту команду с помощью [GitHub CLI](https://cli.github.com):
+
+```bash
+gh attestation verify openspec-darwin-arm64.tar.gz --repo Fission-AI/OpenSpec
+```
+
+Команда завершится ошибкой, если файл был собран не этим процессом. Команда установки уже проверяет каждое скачивание по `SHA256SUMS` релиза, поэтому этот шаг необязателен.
 
 ## Переход с npm на автономную установку
 

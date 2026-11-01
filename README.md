@@ -1,6 +1,6 @@
 # openspec_ru
 
-Русскоязычный перевод [OpenSpec](https://github.com/Fission-AI/OpenSpec) — AI-скиллов, slash-команд, схем артефактов и встроенной веб-панели спецификаций, — привязанный к конкретной версии оригинала (`v1.15.0`), с автоматическим обнаружением дрейфа апстрима.
+Русскоязычный перевод [OpenSpec](https://github.com/Fission-AI/OpenSpec) — AI-скиллов, slash-команд, схем артефактов и встроенной веб-панели спецификаций, — привязанный к конкретной версии оригинала (`v1.16.0`), с автоматическим обнаружением дрейфа апстрима.
 
 **Сайт с переведённой документацией: https://openspec-ru.pages.dev** (начните с [/docs/ru](https://openspec-ru.pages.dev/docs/ru) — обзор и установка за 4 шага).
 
@@ -21,12 +21,12 @@
 
 ```sh
 # 1. Установите штатный CLI OpenSpec один раз на компьютер (если ещё не установлен)
-npm install -g @fission-ai/openspec@1.15
+npm install -g @fission-ai/openspec@1.16
 
 # 2. Инициализируйте проект и сразу примените русский перевод одной командой
-npx --yes github:OnePro/openspec_ru#v1.15.0 init
+npx --yes github:OnePro/openspec_ru#v1.16.0 init
 # или неинтерактивно (например, для Claude Code, Cursor, Pi или всех инструментов):
-npx --yes github:OnePro/openspec_ru#v1.15.0 init --tools claude
+npx --yes github:OnePro/openspec_ru#v1.16.0 init --tools claude
 ```
 
 Что делает команда за один шаг:
@@ -41,7 +41,7 @@ npx --yes github:OnePro/openspec_ru#v1.15.0 init --tools claude
 Если `openspec init` в проекте уже выполнялся ранее:
 
 ```sh
-npx --yes github:OnePro/openspec_ru#v1.15.0 apply
+npx --yes github:OnePro/openspec_ru#v1.16.0 apply
 # или, если openspec-ru уже установлен:
 openspec-ru apply
 ```
@@ -59,7 +59,7 @@ openspec-ru apply --dry-run
 ```sh
 openspec-ru update
 # или через npx (с обходом локального кэша npx):
-npx --yes github:OnePro/openspec_ru#v1.15.0 update
+npx --yes github:OnePro/openspec_ru#v1.16.0 update
 ```
 
 Команда сама:
@@ -108,8 +108,8 @@ openspec-ru stop web
 Перевод привязан к релизу апстрима из `upstream.json`:
 
 - репозиторий: `Fission-AI/OpenSpec`
-- тег: `v1.15.0`
-- commit: `8e0288df12d401b0e183e2f47254d22528c1dffb`
+- тег: `v1.16.0`
+- commit: `27c0515724decc633818c735ee596481eec78a8b`
 
 Поднятие привязки — осознанное действие: обновить `upstream.json` → `npm run drift:check` → волна перепереводов по отчёту.
 

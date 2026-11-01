@@ -1,6 +1,6 @@
 {
   "name": "openspec-ru",
-  "version": "1.15.1",
+  "version": "1.16.0",
   "description": "Патчер русскоязычных AI-артефактов OpenSpec (skills и slash-команды для топ-5 инструментов)",
   "type": "module",
   "main": "./cli.mjs",

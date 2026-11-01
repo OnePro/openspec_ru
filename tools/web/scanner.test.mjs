@@ -90,7 +90,7 @@ test('1.1 scanner: читает пустой черновик с .openspec.yaml,
     mkdirSync(resolve(dir, 'openspec/changes/random-empty-folder'), { recursive: true });
 
     const state = scanOpenspecProject(dir);
-    assert.equal(state.bundleVersion, 'v1.15.0');
+    assert.equal(state.bundleVersion, 'v1.16.0');
 
     // Проверка спецификаций и POSIX-путей
     assert.deepEqual(
@@ -151,7 +151,7 @@ test('1.2 scanner на реальном репозитории openspec_ru: во
   const state = scanOpenspecProject(REPO_ROOT);
 
   assert.equal(state.repoName, 'openspec_ru');
-  assert.equal(state.bundleVersion, 'v1.15.0');
+  assert.equal(state.bundleVersion, 'v1.16.0');
 
   const specCaps = state.specs.map((s) => s.cap);
   assert.ok(specCaps.includes('upstream-version-tracking'));

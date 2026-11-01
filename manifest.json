@@ -127,7 +127,7 @@
     {
       "en": "docs-lab/multi-repo/stores.md",
       "ru": "ru/docs-lab/multi-repo/stores.md",
-      "base_blob_sha": "0b596b91f9299f52f122b1253ff198052e2781aa",
+      "base_blob_sha": "e15b24f53fbb58522ccf7fea9be7fc3e953f15e5",
       "status": "reviewed",
       "area": "docs-lab"
     },
@@ -176,7 +176,7 @@
     {
       "en": "docs-lab/reference/cli.md",
       "ru": "ru/docs-lab/reference/cli.md",
-      "base_blob_sha": "982acf456de4b558d127a8871f8aad682a13b508",
+      "base_blob_sha": "82b4c352eebadc2fce40d5cabf5678a47a736122",
       "status": "reviewed",
       "area": "docs-lab"
     },
@@ -197,7 +197,7 @@
     {
       "en": "docs-lab/reference/configuration/config-yaml.md",
       "ru": "ru/docs-lab/reference/configuration/config-yaml.md",
-      "base_blob_sha": "9f6886c92c9a0b71c9dda1f5764ba6464efe4920",
+      "base_blob_sha": "197f871703cba6fa1a960eeb44628cc600928ea0",
       "status": "reviewed",
       "area": "docs-lab"
     },
@@ -246,7 +246,7 @@
     {
       "en": "docs-lab/reference/schemas/spec-driven/index.md",
       "ru": "ru/docs-lab/reference/schemas/spec-driven/index.md",
-      "base_blob_sha": "5e9c1ea31630f9ca221eb68979569727de544b27",
+      "base_blob_sha": "2b47ae2b6ca8d023f4fbbe5020425dfd133522af",
       "status": "reviewed",
       "area": "docs-lab"
     },
@@ -274,7 +274,7 @@
     {
       "en": "docs-lab/start/installation.md",
       "ru": "ru/docs-lab/start/installation.md",
-      "base_blob_sha": "1e228cf82148de2ba638c775af8aed174401dbd4",
+      "base_blob_sha": "9d10f1150c1760ba2ae521264f089beb177be10c",
       "status": "reviewed",
       "area": "docs-lab"
     },
@@ -302,22 +302,22 @@
     {
       "en": "install.md",
       "ru": "ru/meta/install.md",
-      "base_blob_sha": "51e73bacc46f922201bb39c0b980c3a55bda5d28",
-      "status": "pending",
+      "base_blob_sha": "77b6c60aaf32c08a9e9f28901f0627073a1b4380",
+      "status": "reviewed",
       "area": "meta"
     },
     {
       "en": "README.md",
       "ru": "ru/meta/README.md",
-      "base_blob_sha": "ce794e0949ca4d8bef0f60e017a99d2136d1f62e",
-      "status": "machine",
+      "base_blob_sha": "7b8da04ac27fb1fa5a9578303873559e0c1b6ad2",
+      "status": "reviewed",
       "area": "meta"
     },
     {
       "en": "schemas/spec-driven/schema.yaml",
       "ru": "ru/schemas/spec-driven/schema.yaml",
-      "base_blob_sha": "81336eb7fca90d7548465f3aeafe1d23af9b0d98",
-      "status": "machine",
+      "base_blob_sha": "feac937f8cb10e7dd5cbbc5d4ed81c71b9df5a1d",
+      "status": "reviewed",
       "area": "schemas"
     },
     {
@@ -352,133 +352,133 @@
       "en": "src/core/templates/index.ts",
       "ru": "ru/src/core/templates/index.ts",
       "base_blob_sha": "6bf5d712c49f72441e4913702ea5f93ba6ccc3f0",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/optional-workflow.ts",
       "ru": "ru/src/core/templates/optional-workflow.ts",
       "base_blob_sha": "d40bc66ddd4e006780af9add36e415874e881d69",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/skill-templates.ts",
       "ru": "ru/src/core/templates/skill-templates.ts",
       "base_blob_sha": "041c0331c728a9f6dc8d6dbcc892be45b96fcf68",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/types.ts",
       "ru": "ru/src/core/templates/types.ts",
       "base_blob_sha": "2c5ebb715cea0082e22cfd94e09f3764c24fad3c",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/apply-change.ts",
       "ru": "ru/src/core/templates/workflows/apply-change.ts",
       "base_blob_sha": "087911b0bd416983dd4d1c3eca94dac43bdeb777",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/archive-change.ts",
       "ru": "ru/src/core/templates/workflows/archive-change.ts",
       "base_blob_sha": "921cd14c6a5c1f7f47cc95bd2d1fb8de3eaa9922",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/bulk-archive-change.ts",
       "ru": "ru/src/core/templates/workflows/bulk-archive-change.ts",
       "base_blob_sha": "fae4f202023cabcdabff39600d479a9c59b6c823",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/continue-change.ts",
       "ru": "ru/src/core/templates/workflows/continue-change.ts",
       "base_blob_sha": "f6df7aac77fbdba213df1f20203dbba6b4887f44",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/explore.ts",
       "ru": "ru/src/core/templates/workflows/explore.ts",
       "base_blob_sha": "92fd1aee705cb629f930ec760bfcc3f11652a805",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/feedback.ts",
       "ru": "ru/src/core/templates/workflows/feedback.ts",
       "base_blob_sha": "baa984b731fc777281377439f8818f17bb30ece8",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/ff-change.ts",
       "ru": "ru/src/core/templates/workflows/ff-change.ts",
       "base_blob_sha": "a56ed042bbb74039028bf0bfa85e72ab615522ce",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/new-change.ts",
       "ru": "ru/src/core/templates/workflows/new-change.ts",
       "base_blob_sha": "fee477ea8a15223f09bb074da8a8e17c3974afdc",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/onboard.ts",
       "ru": "ru/src/core/templates/workflows/onboard.ts",
       "base_blob_sha": "851565a1741ea20297b058e42a0ca7ece3e65a20",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/project-root.ts",
       "ru": "ru/src/core/templates/workflows/project-root.ts",
       "base_blob_sha": "28158442109b799154d51b6084c1822db101b02c",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/propose.ts",
       "ru": "ru/src/core/templates/workflows/propose.ts",
       "base_blob_sha": "eb6810af1d81b02a981d7d12c25ab198e33ec623",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/store-selection.ts",
       "ru": "ru/src/core/templates/workflows/store-selection.ts",
       "base_blob_sha": "dfa132c3e5de3f6c85ca266f886bc4fa3e0fa6c5",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/sync-specs.ts",
       "ru": "ru/src/core/templates/workflows/sync-specs.ts",
       "base_blob_sha": "13a199323edf4fe726efb9126b5055f716eb131d",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/update-change.ts",
       "ru": "ru/src/core/templates/workflows/update-change.ts",
       "base_blob_sha": "43f1496678405aba698b387b5e69b6bb3cb03a2f",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
       "en": "src/core/templates/workflows/verify-change.ts",
       "ru": "ru/src/core/templates/workflows/verify-change.ts",
       "base_blob_sha": "cc03e9a02853c6f6f506930b8772e290b0a6b91b",
-      "status": "machine",
+      "status": "reviewed",
       "area": "templates"
     },
     {
@@ -505,7 +505,7 @@
     {
       "en": "website/app/layout.tsx",
       "ru": "ru/website-strings/app/layout.tsx",
-      "base_blob_sha": "c8e5172f95610f329a0c90109704a95b48a8cb59",
+      "base_blob_sha": "56101454c153238c10b5f2cdd3d1530f15efb8ce",
       "status": "reviewed",
       "area": "website"
     },
@@ -561,7 +561,7 @@
     {
       "en": "website/lib/layout.shared.tsx",
       "ru": "ru/website-strings/lib/layout.shared.tsx",
-      "base_blob_sha": "e854e2887020a0ccdf4f4685da8a28a992015fb9",
+      "base_blob_sha": "45dfb3a493d1ce3234965249f8e00ed0b34fc6ea",
       "status": "reviewed",
       "area": "website"
     },

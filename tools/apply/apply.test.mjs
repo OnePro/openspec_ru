@@ -74,10 +74,10 @@ test('4.1 unit: детект по артефактам для каждого и�
     writeFixtureFile(dir, '.agents/skills/openspec-propose/SKILL.md', '---\nname: openspec-propose\n---\nEN codex\n');
     writeFixtureFile(dir, '.gemini/commands/opsx/verify.toml', 'description = "EN"\nprompt = "EN"\n');
 
-    const res = applyRuPatch(dir, { openspecVersion: '1.15.0' });
+    const res = applyRuPatch(dir, { openspecVersion: '1.16.0' });
     assert.equal(res.ok, true);
     assert.equal(res.exitCode, 0);
-    assert.equal(res.bundleVersion, 'v1.15.0');
+    assert.equal(res.bundleVersion, 'v1.16.0');
     assert.equal(res.versionMismatch, null);
     assert.deepEqual(
       res.detectedTools.map((t) => t.id),
@@ -99,7 +99,7 @@ test('4.1 unit: детект по артефактам для каждого и�
     const exploreAbs = resolve(dir, '.claude/skills/openspec-explore/SKILL.md');
     writeFileSync(exploreAbs, readFileSync(exploreAbs, 'utf8').replace(/\n/g, '\r\n'), 'utf8');
 
-    const second = applyRuPatch(dir, { openspecVersion: '1.15.0' });
+    const second = applyRuPatch(dir, { openspecVersion: '1.16.0' });
     assert.equal(second.ok, true);
     assert.equal(second.totalUpdated, 0);
     assert.equal(second.totalUnchanged, 6);
@@ -219,7 +219,7 @@ test('4.2 E2E: openspec init --tools claude (EN) -> apply -> RU -> повтор 
     // 2. Запускаем патчер через `node tools/apply/ apply <scratch>`
     const patchRes = invokeNodeCli(DIR_PATH, ['apply', scratch]);
     assert.equal(patchRes.status, 0, `stderr: ${patchRes.stderr}`);
-    assert.match(patchRes.stdout, /v1\.15\.0/);
+    assert.match(patchRes.stdout, /v1\.16\.0/);
     assert.match(patchRes.stdout, /Claude Code \(claude\)/);
     assert.match(patchRes.stdout, new RegExp(`обновлено файлов: ${expectedTotal}`));
 
@@ -402,10 +402,10 @@ test('4.3 E2E негативный 5: расхождение версии OpenSp
     assert.equal(res.ok, true);
     assert.deepEqual(res.versionMismatch, {
       installed: '1.14.0',
-      bundle: '1.15.0',
-      bundleTag: 'v1.15.0',
+      bundle: '1.16.0',
+      bundleTag: 'v1.16.0',
     });
-    assert.match(res.report, /Предупреждение: версия установленного OpenSpec CLI \(v1\.14\.0\) отличается от версии бандла \(v1\.15\.0\)/);
+    assert.match(res.report, /Предупреждение: версия установленного OpenSpec CLI \(v1\.14\.0\) отличается от версии бандла \(v1\.16\.0\)/);
   });
 });
 

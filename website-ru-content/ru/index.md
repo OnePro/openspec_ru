@@ -6,7 +6,7 @@
 
 **openspec_ru** — русскоязычный перевод [OpenSpec](https://github.com/Fission-AI/OpenSpec): системы согласования изменений с ИИ-ассистентом через спецификации. Мы перевели документацию, шаблоны артефактов (`proposal.md`, `design.md`, `tasks.md`, `spec.md`) и slash-команды, а патчер ставит всё это в ваш ИИ-инструмент одной командой.
 
-- Перевод привязан к версии OpenSpec **1.15.0** и проверен редакторски.
+- Перевод привязан к версии OpenSpec **1.16.0** и проверен редакторски.
 - Работает с ИИ-инструментами: Claude Code, Cursor, GitHub Copilot, Codex, Gemini и [другими](/docs/reference/supported-tools).
 - Проект живёт на GitHub: [OnePro/openspec_ru](https://github.com/OnePro/openspec_ru).
 
@@ -19,7 +19,7 @@
 
 1. Подготовьте git-репозиторий проекта.
 2. Установите CLI OpenSpec на компьютер.
-3. Выполните `npx github:OnePro/openspec_ru#v1.15.0 init` в корне проекта.
+3. Выполните `npx github:OnePro/openspec_ru#v1.16.0 init` в корне проекта.
 4. Проверьте, что русские артефакты на месте.
 
 **[Точная последовательность команд →](/docs/ru/install)**

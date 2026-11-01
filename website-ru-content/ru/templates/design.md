@@ -3,7 +3,7 @@
 > Шаблон артефакта design.md схемы spec-driven: решения и компромиссы.
 
 > [!NOTE]
-> Шаблон из русского перевода openspec_ru (схема `spec-driven`, OpenSpec 1.15.0), не апстрим. Установка русских шаблонов: [Установка openspec-ru](/docs/ru/install).
+> Шаблон из русского перевода openspec_ru (схема `spec-driven`, OpenSpec 1.16.0), не апстрим. Установка русских шаблонов: [Установка openspec-ru](/docs/ru/install).
 
 ## Шаблон
 

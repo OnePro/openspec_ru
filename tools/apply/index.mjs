@@ -298,8 +298,10 @@ export function installGlobalCliShim(options = {}) {
   if (openspecBin) {
     candidates.push(dirname(openspecBin));
   }
-  if (platform === 'win32' && process.env.APPDATA) {
-    candidates.push(join(process.env.APPDATA, 'npm'));
+  if (platform === 'win32') {
+    if (process.env.APPDATA) {
+      candidates.push(join(process.env.APPDATA, 'npm'));
+    }
   } else {
     candidates.push(join(homeDir, '.local', 'bin'));
   }
