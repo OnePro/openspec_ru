@@ -38,6 +38,9 @@ export const metadata: Metadata = {
     title: appName,
     description,
   },
+  verification: {
+    google: 'wipNQxh2Y5gPjkdnsXfZxRK5M8uJrtB0NPtucSK11pc',
+  },
 };
 
 export default function Layout({ children }: LayoutProps<'/'>) {

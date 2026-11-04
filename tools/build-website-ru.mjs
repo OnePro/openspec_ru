@@ -68,6 +68,14 @@ export function buildTree({ upstreamRoot, workDir, manifest, root = ROOT, log = 
     log(`патчи: ${patchesDir} -> site/`);
   }
 
+  const assetsSrc = resolve(root, 'assets');
+  if (existsSync(assetsSrc)) {
+    const assetsDest = join(siteDir, 'public/assets');
+    mkdirSync(assetsDest, { recursive: true });
+    cpSync(assetsSrc, assetsDest, { recursive: true });
+    log('assets: assets -> site/public/assets/');
+  }
+
   const labSrc = resolve(root, 'ru/docs-lab');
   if (existsSync(labSrc)) {
     cpSync(labSrc, labDir, { recursive: true });
