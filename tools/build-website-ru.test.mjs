@@ -34,6 +34,7 @@ function fixture(t) {
   put(root, 'website-ru-patches/docs.sync.config.mjs', 'RU config');
   put(root, 'website-ru-patches/app/page.tsx', 'PATCHED page');
   put(root, 'website-ru-content/ru/index.md', 'own RU page');
+  put(root, 'assets/openspec-ru-ui-kanban.png', 'PNGDATA');
   const manifest = {
     entries: [
       { en: 'website/app/page.tsx', ru: 'ru/website-strings/app/page.tsx', base_blob_sha: SHA, status: 'reviewed', area: 'website' },
@@ -64,6 +65,7 @@ test('buildTree: порядок строки → патчи, docs-lab рядом
   assert.equal(labDir, resolve(siteDir, '../docs-lab'));
   assert.equal(readFileSync(join(labDir, 'start/installation.md'), 'utf8'), 'RU doc');
   assert.equal(readFileSync(join(labDir, 'ru/index.md'), 'utf8'), 'own RU page');
+  assert.equal(readFileSync(join(siteDir, 'public/assets/openspec-ru-ui-kanban.png'), 'utf8'), 'PNGDATA');
 });
 
 test('buildTree: повторный прогон сохраняет node_modules и убирает устаревшее', (t) => {
